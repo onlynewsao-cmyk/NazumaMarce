@@ -1,0 +1,64 @@
+{
+  "users": {
+    "user1@s.whatsapp.net": {
+      "id": "user1@s.whatsapp.net",
+      "name": "Evander",
+      "level": 1,
+      "xp": 0,
+      "hp": 100,
+      "max_hp": 100,
+      "energy": 50,
+      "max_energy": 50,
+      "rank": "E",
+      "origin": "Feiticeiro Jujutsu",
+      "berries": 3200,
+      "crystals": 100,
+      "bounty": 0,
+      "stat_str": 15,
+      "stat_agi": 15,
+      "stat_int": 15,
+      "stat_vit": 15,
+      "stat_lck": 10,
+      "stat_points": 0,
+      "guild_id": null
+    }
+  },
+  "shadows": {},
+  "userCards": {
+    "user1@s.whatsapp.net": [
+      {
+        "id": 1786346758301,
+        "card_id": "sl-jinho",
+        "stars": 1,
+        "equipped": false
+      }
+    ]
+  },
+  "userWeapons": {
+    "user1@s.whatsapp.net": [
+      {
+        "id": 1,
+        "weapon_id": "sl-kasaka",
+        "refinement": 0,
+        "equipped": true
+      }
+    ]
+  },
+  "guilds": {},
+  "marketListings": [],
+  "userItems": {
+    "user1@s.whatsapp.net": {
+      "pocao_hp": 3
+    }
+  },
+  "worldRaid": {
+    "id": 1,
+    "boss_name": "Kaido Forma Dragão Colossal",
+    "anime": "One Piece",
+    "hp": 100000,
+    "max_hp": 100000,
+    "active": true,
+    "attackers": {}
+  },
+  "pvpHistory": []
+}
