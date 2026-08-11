@@ -130,37 +130,52 @@ app.get('/dashboard', requireAuth, (req, res) => {
 app.post('/api/paircode', requireAuth, async (req, res) => {
     const { phoneNumber } = req.body;
     if (!phoneNumber || String(phoneNumber).length < 8) {
-        return res.status(400).json({ success: false, error: "Número de telefone inválido" });
+        return res.status(400).json({ success: false, error: "Número de telefone inválido (deve conter código do país e DDD)" });
     }
 
     const cleaned = String(phoneNumber).replace(/\D/g, "");
     currentBotStatus.defaultNumber = cleaned;
     currentBotStatus.lastPairRequest = Date.now();
 
-    // 1. Envia pedido via IPC ao processo Baileys (ou gera código de demonstração/ativo se em ambiente Web)
+    // Apaga arquivo anterior para garantir que pegaremos apenas a resposta nova e real do WhatsApp
+    const pairFile = path.join(__dirname, "ARQUIVES/pair_status.json");
+    if (fs.existsSync(pairFile)) {
+        try { fs.unlinkSync(pairFile); } catch(e) {}
+    }
+
+    // Solicita o código real à Baileys via IPC
     if (botChildProcess && botChildProcess.send) {
         botChildProcess.send({ type: "REQUEST_PAIR_CODE", phoneNumber: cleaned });
-    }
-
-    // 2. Simula ou consulta o arquivo de resposta do Baileys
-    const pairFile = path.join(__dirname, "ARQUIVES/pair_status.json");
-    let code = "KRAD-2026"; // Código de teste ou gerado
-
-    if (fs.existsSync(pairFile)) {
-        try {
-            const p = JSON.parse(fs.readFileSync(pairFile, "utf8"));
-            if (p.code) code = p.code;
-        } catch (e) {}
     } else {
-        // Gera um código de 8 caracteres formatado XXXX-YYYY para pareamento
-        const randomHex = Math.random().toString(36).substring(2, 6).toUpperCase() + "-" +
-                          Math.random().toString(36).substring(2, 6).toUpperCase();
-        code = randomHex;
-        fs.writeFileSync(pairFile, JSON.stringify({ code, phoneNumber: cleaned, timestamp: Date.now() }), "utf8");
+        return res.status(500).json({ success: false, error: "Processo do WhatsApp Bot não está em execução!" });
     }
 
-    currentBotStatus.pairCode = code;
-    res.status(200).json({ success: true, pairCode: code, phoneNumber: cleaned });
+    // Aguarda até 10 segundos pelo retorno REAL do WhatsApp (sem gerar códigos falsos)
+    let attempts = 0;
+    const interval = setInterval(() => {
+        attempts++;
+        if (fs.existsSync(pairFile)) {
+            clearInterval(interval);
+            try {
+                const p = JSON.parse(fs.readFileSync(pairFile, "utf8"));
+                if (p.code && p.code !== "ERROR") {
+                    currentBotStatus.pairCode = p.code;
+                    return res.status(200).json({ success: true, pairCode: p.code, phoneNumber: cleaned });
+                } else {
+                    return res.status(400).json({ success: false, error: p.error || "O WhatsApp recusou gerar o código. Verifique o número digitado." });
+                }
+            } catch (e) {
+                return res.status(500).json({ success: false, error: "Erro de leitura na resposta da Baileys" });
+            }
+        }
+        if (attempts >= 20) { // 20 * 500ms = 10 segundos
+            clearInterval(interval);
+            return res.status(408).json({
+                success: false,
+                error: "O WhatsApp demorou para responder. Clique em Limpar Sessão ou verifique se o número foi digitado corretamente com código de país (244...)."
+            });
+        }
+    }, 500);
 });
 
 app.post('/api/admin-action', requireAuth, async (req, res) => {
