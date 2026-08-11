@@ -1,0 +1,17 @@
+# Dependências e Logs
+node_modules/
+package-lock.json
+*.log
+npm-debug.log*
+
+# QR Code e sessão local do WhatsApp
+qr-code/
+auth_info_baileys/
+*.sqlite
+*.sqlite.tmp
+rpg_data.json.tmp
+backups/
+
+# Variáveis locais
+.env
+.DS_Store

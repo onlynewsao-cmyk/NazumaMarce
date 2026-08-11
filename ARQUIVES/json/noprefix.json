@@ -1,0 +1,22 @@
+[
+  {
+    "cmdSemPrefixo": "b",
+    "comandoOriginal": "ban"
+  },
+  {
+    "cmdSemPrefixo": "t",
+    "comandoOriginal": "take"
+  },
+  {
+    "cmdSemPrefixo": "prm",
+    "comandoOriginal": "promover"
+  },
+  {
+    "cmdSemPrefixo": "rbx",
+    "comandoOriginal": "rebaixar"
+  },
+  {
+    "cmdSemPrefixo": "p",
+    "comandoOriginal": "ping"
+  }
+]
