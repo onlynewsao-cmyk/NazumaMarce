@@ -153,13 +153,46 @@ let currentSocketInstance = null;
 
 process.on("message", async (msg) => {
     if (msg && msg.type === "REQUEST_PAIR_CODE" && msg.phoneNumber) {
-        console.log(colors.cyan(`⚡ [DASHBOARD] Recebida solicitação de Pair Code para: ${msg.phoneNumber}`));
-        pendingPairingNumber = msg.phoneNumber;
-        if (currentSocketInstance) {
-            try { currentSocketInstance.end(); } catch(e) {}
-        } else {
-            startConnect();
+        const num = String(msg.phoneNumber).replace(/\D/g, "");
+        console.log(colors.cyan(`⚡ [DASHBOARD] Recebida solicitação de Pair Code para: ${num}`));
+        
+        if (currentSocketInstance?.authState?.creds?.registered) {
+            console.warn(colors.yellow("⚠️ [DASHBOARD] O bot já está conectado ao WhatsApp! Para parear outro número, clique em Limpar Sessão no painel."));
+            if (process.send) {
+                process.send({ type: "PAIR_CODE_ERROR", error: "O bot já está conectado! Use Limpar Sessão no painel." });
+            }
+            return;
         }
+
+        async function tryRequest(attempt = 1) {
+            try {
+                if (!currentSocketInstance) {
+                    startConnect();
+                    setTimeout(() => tryRequest(attempt + 1), 2000);
+                    return;
+                }
+                console.log(colors.cyan(`⚡ [SYSTEM DARK] Solicitando Pair Code REAL à Baileys para: ${num} (Tentativa ${attempt})...`));
+                const code = await currentSocketInstance.requestPairingCode(num);
+                console.log(colors.green(`⚡ [SYSTEM DARK] PAIR CODE REAL GERADO PELO WHATSAPP: ${code}`));
+                console.log(colors.yellow(`📱 Verifique agora a notificação no seu celular (${num})!`));
+                
+                if (process.send) {
+                    process.send({ type: "PAIR_CODE_RESULT", code, phoneNumber: num });
+                }
+                fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ code, phoneNumber: num, timestamp: Date.now() }), "utf8");
+            } catch (err) {
+                console.warn(colors.yellow(`⚠️ [SYSTEM DARK] Tentativa ${attempt} falhou: ${err.message}`));
+                if (attempt < 4) {
+                    setTimeout(() => tryRequest(attempt + 1), 2000);
+                } else {
+                    console.log(colors.cyan("🔄 Reiniciando socket para tentar o pareamento com canal limpo..."));
+                    try { currentSocketInstance.ws.close(); } catch(e) {}
+                    pendingPairingNumber = num;
+                }
+            }
+        }
+
+        tryRequest(1);
     }
 });
 
