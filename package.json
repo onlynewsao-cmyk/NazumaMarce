@@ -16,6 +16,7 @@
     "acrcloud": "^1.4.0",
     "assemblyai": "^4.16.1",
     "baileys": "^6.7.20",
+    "btch-downloader": "^6.3.6",
     "cfonts": "^3.3.1",
     "chalk": "^4.0.0",
     "cheerio": "^1.1.2",

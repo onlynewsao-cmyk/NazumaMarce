@@ -16,3 +16,4 @@ backups/
 .env
 .DS_Store
 ARQUIVES/rpg/rpg_data.json
+ARQUIVES/pair_status.json

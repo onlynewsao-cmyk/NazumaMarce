@@ -42,6 +42,40 @@ async function openWhatsappSupport() {
 }
 
 async function showMenu(SystemDark) {
+    if (!process.stdin.isTTY || process.env.NODE_ENV === "production" || process.send) {
+        console.log(colors.cyan("🌐 [SYSTEM DARK 24/7] Modo Nuvem / Web Dashboard Ativo!"));
+        console.log(colors.green("💡 QR Code nos logs E Pair Code sob demanda pelo Painel Web!"));
+
+        SystemDark.ev.on("connection.update", (update) => {
+            if (update.qr) {
+                console.log(colors.cyan("\n📱 ESCANEIE O QR PARA CONECTAR-SE AO BOT:\n"));
+                qrcodeTerminal.generate(update.qr, { small: true }); 
+                console.log(colors.yellow("\n• ABRA O WHATSAPP > DISPOSITIVOS CONECTADOS > CONECTAR NOVO APARELHO\n"));
+            }
+        });
+
+        process.on("message", async (msg) => {
+            if (msg && msg.type === "REQUEST_PAIR_CODE" && msg.phoneNumber) {
+                try {
+                    console.log(colors.cyan(`⚡ [DASHBOARD] Solicitando Pair Code para: ${msg.phoneNumber}...`));
+                    const code = await SystemDark.requestPairingCode(msg.phoneNumber);
+                    console.log(colors.green(`⚡ [DASHBOARD] Pair Code Gerado: ${code}`));
+                    if (process.send) {
+                        process.send({ type: "PAIR_CODE_RESULT", code, phoneNumber: msg.phoneNumber });
+                    }
+                    fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ code, phoneNumber: msg.phoneNumber, timestamp: Date.now() }), "utf8");
+                } catch (err) {
+                    console.error(colors.red(`❌ [DASHBOARD] Erro ao gerar Pair Code: ${err.message}`));
+                    if (process.send) {
+                        process.send({ type: "PAIR_CODE_ERROR", error: err.message });
+                    }
+                }
+            }
+        });
+
+        return;
+    }
+
 
     console.log(colors.cyan("╔════════════════════════════════════╗"));
     console.log(colors.cyan("║ ݁ ⛧ ₊ ⊹  ⊹ ₊ ⛧ ݁  ݁ ⛧ ₊ ⊹  ⊹ ₊ ⛧ ݁     ║"));
