@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "bot": "sh start.sh sim",
-    "test": "echo \"System Dark by KRAD - Online!\""
+    "test": "echo \"System Dark by KRAD - Online!\"",
+    "test:apis": "node test_apis_comprehensive.js"
   },
   "author": "KRAD",
   "license": "MIT",
