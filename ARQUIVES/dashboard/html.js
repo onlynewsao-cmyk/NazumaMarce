@@ -149,7 +149,7 @@ function getLoginPage(errorMsg = "") {
 </html>`;
 }
 
-function getDashboardPage(statusData, apisList, rpgStats) {
+function getDashboardPage(statusData, apisList, rpgStats, globalSettings = {}) {
     return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -226,11 +226,11 @@ function getDashboardPage(statusData, apisList, rpgStats) {
       background: rgba(239, 68, 68, 0.3);
     }
     .container {
-      max-width: 1300px;
+      max-width: 1350px;
       margin: 2rem auto;
       padding: 0 1.5rem;
     }
-    /* Tabs Navigation */
+    /* 8-Tab Navigation */
     .nav-tabs {
       display: flex;
       flex-wrap: wrap;
@@ -243,15 +243,15 @@ function getDashboardPage(statusData, apisList, rpgStats) {
       background: var(--card);
       color: var(--muted);
       border: 1px solid var(--border);
-      padding: 0.8rem 1.25rem;
+      padding: 0.75rem 1.15rem;
       border-radius: 0.6rem;
       cursor: pointer;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       transition: all 0.2s;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
     }
     .tab-btn:hover {
       background: var(--panel);
@@ -280,8 +280,14 @@ function getDashboardPage(statusData, apisList, rpgStats) {
       gap: 1.5rem;
       margin-bottom: 1.5rem;
     }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
     @media (max-width: 950px) {
-      .grid-2 { grid-template-columns: 1fr; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
     }
     .card {
       background: var(--card);
@@ -291,7 +297,7 @@ function getDashboardPage(statusData, apisList, rpgStats) {
       box-shadow: 0 10px 20px rgba(0,0,0,0.4);
     }
     .card h2 {
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       color: #fff;
       margin-bottom: 1rem;
       border-bottom: 1px solid var(--border);
@@ -353,6 +359,10 @@ function getDashboardPage(statusData, apisList, rpgStats) {
       background: linear-gradient(135deg, var(--blue), #0284c7);
       box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
     }
+    .btn-green {
+      background: linear-gradient(135deg, var(--green), #059669);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
     .btn-purple {
       background: linear-gradient(135deg, var(--purple), #7e22ce);
       box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
@@ -407,7 +417,7 @@ function getDashboardPage(statusData, apisList, rpgStats) {
       font-family: "Fira Code", Consolas, monospace;
       font-size: 0.88rem;
       color: #38bdf8;
-      height: 250px;
+      height: 260px;
       overflow-y: auto;
       margin: 1rem 0;
     }
@@ -437,6 +447,24 @@ function getDashboardPage(statusData, apisList, rpgStats) {
     tr:hover {
       background: rgba(255,255,255,0.03);
     }
+    .switch-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 1rem;
+      background: #060911;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .switch-label {
+      font-weight: bold;
+      color: #fff;
+    }
+    .switch-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
   </style>
 </head>
 <body>
@@ -456,25 +484,26 @@ function getDashboardPage(statusData, apisList, rpgStats) {
 
   <div class="container">
 
-    <!-- ABAS DE NAVEGAÇÃO -->
+    <!-- 8 ABAS DE NAVEGAÇÃO -->
     <div class="nav-tabs">
       <button class="tab-btn active" onclick="openTab('tab-pair', this)">📱 Pareamento & Conexão</button>
       <button class="tab-btn" onclick="openTab('tab-console', this)">🕹️ Terminal & Comandos</button>
+      <button class="tab-btn" onclick="openTab('tab-users', this)">👥 Caçadores & VIP</button>
+      <button class="tab-btn" onclick="openTab('tab-groups', this)">💬 Grupos & Controles</button>
+      <button class="tab-btn" onclick="openTab('tab-broadcast', this)">📢 Transmissão (Bcast)</button>
+      <button class="tab-btn" onclick="openTab('tab-settings', this)">⚙️ Ajustes & Proteções</button>
       <button class="tab-btn" onclick="openTab('tab-rpg', this)">⛩️ Administração RPG</button>
-      <button class="tab-btn" onclick="openTab('tab-apis', this)">🌐 Diagnóstico de APIs (13)</button>
+      <button class="tab-btn" onclick="openTab('tab-backup', this)">💾 Nuvem & MongoDB (13 APIs)</button>
     </div>
 
     <!-- ================= ABA 1: PAREAMENTO & CONEXÃO ================= -->
     <div id="tab-pair" class="tab-content active">
       <div class="grid-2">
-        
-        <!-- CARD PAIR CODE -->
         <div class="card">
           <h2>📱 Pareamento Oficial por Código (Pair Code)</h2>
           <p style="color:var(--muted); font-size:0.9rem;">
-            O servidor requisitará o código oficial ao WhatsApp Web na versão compatível <code>1035194821</code> (@systemzero/baileys):
+            Método <code>dark-bot</code> integrado com <code>@systemzero/baileys</code> (versão <code>1035194821</code>) resolvida para não falhar a notificação:
           </p>
-          
           <div class="pair-box">
             <div style="font-size:0.8rem; color:var(--muted); text-transform:uppercase;">Código de Pareamento Baileys:</div>
             <div id="pair-code-display" class="pair-code-display">${statusData.pairCode || "---- ----"}</div>
@@ -486,17 +515,14 @@ function getDashboardPage(statusData, apisList, rpgStats) {
             </div>
             <div id="pair-msg" style="margin-top:0.9rem; font-size:0.88rem; color:var(--blue); font-weight:bold;"></div>
           </div>
-
           <div style="font-size:0.85rem; color:var(--muted); margin-top:0.5rem;">
             💡 <strong>Dica do Arnaldo-Dev / KRAD:</strong> Se aparecer mensagem de que o bot já está conectado, clique em <strong>"🧹 Limpar Sessão"</strong>. O servidor apagará a sessão anterior e reiniciará limpo em 1 segundo.
           </div>
         </div>
 
-        <!-- CARD STATUS DO SERVIDOR -->
         <div class="card">
           <h2>📊 Monitor Operacional do Servidor (Render 24/7)</h2>
           <p style="color:var(--muted); font-size:0.9rem;">Métricas operacionais e integridade da nuvem:</p>
-          
           <div class="stat-grid">
             <div class="stat-item">
               <div class="num">${statusData.uptimeFormatted || "0h 0m"}</div>
@@ -511,26 +537,21 @@ function getDashboardPage(statusData, apisList, rpgStats) {
               <div class="label">MongoDB Cloud</div>
             </div>
           </div>
-
           <div style="margin-top:1.75rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
             <button onclick="triggerAction('backup')" class="btn-action btn-blue">💾 Sincronizar MongoDB Agora</button>
             <button onclick="triggerAction('restart')" class="btn-action" style="background:var(--error);">🔄 Reiniciar Bot WhatsApp</button>
           </div>
           <div id="admin-log" style="margin-top:1rem; font-size:0.88rem; color:var(--green); font-family:monospace; font-weight:bold;"></div>
         </div>
-
       </div>
     </div>
 
     <!-- ================= ABA 2: TERMINAL & COMANDOS ================= -->
     <div id="tab-console" class="tab-content">
       <div class="grid-2">
-        
-        <!-- CARD TERMINAL AO VIVO -->
         <div class="card">
           <h2>🕹️ Terminal de Logs ao Vivo (Console System Dark)</h2>
           <p style="color:var(--muted); font-size:0.88rem;">Eventos de conexão, transações e atividades do bot em tempo real:</p>
-          
           <div class="terminal-box" id="terminal-logs">
             <div class="line"><span class="timestamp">[${new Date().toLocaleTimeString()}]</span> <span>⚡ [SYSTEM DARK OS] Painel KRAD inicializado na porta 3000</span></div>
             <div class="line"><span class="timestamp">[${new Date().toLocaleTimeString()}]</span> <span>☁️ [MONGODB ATLAS] Sincronização automática 24/7 ativa</span></div>
@@ -539,11 +560,9 @@ function getDashboardPage(statusData, apisList, rpgStats) {
           <button onclick="clearTerminal()" class="btn-action" style="background:#1e293b; padding:0.5rem 1rem; font-size:0.8rem;">Limpar Terminal</button>
         </div>
 
-        <!-- CARD DISPARADOR DE COMANDOS -->
         <div class="card">
           <h2>⚡ Disparador Direto de Comandos & Broadcast</h2>
           <p style="color:var(--muted); font-size:0.88rem;">Envie mensagens ou teste comandos RPG direto do painel web sem precisar abrir o celular:</p>
-          
           <div style="margin-top: 1rem;">
             <label style="font-size:0.8rem; color:var(--muted); text-transform:uppercase; font-weight:bold;">Número de Destino (ou JID do Grupo):</label>
             <input type="text" id="cmd-target" class="phone-input" style="max-width:100%; margin-top:0.4rem; margin-bottom:1rem; text-align:left;" value="244945280380@s.whatsapp.net">
@@ -555,16 +574,142 @@ function getDashboardPage(statusData, apisList, rpgStats) {
             <div id="cmd-result" style="margin-top:1rem; font-family:monospace; font-size:0.85rem; color:var(--green); white-space:pre-wrap;"></div>
           </div>
         </div>
-
       </div>
     </div>
 
-    <!-- ================= ABA 3: ADMINISTRAÇÃO RPG ================= -->
+    <!-- ================= ABA 3: CAÇADORES & VIP ================= -->
+    <div id="tab-users" class="tab-content">
+      <div class="card">
+        <h2>👥 Gerenciamento de Caçadores & VIPs</h2>
+        <p style="color:var(--muted); font-size:0.9rem;">Pesquise usuários, promova a VIP ou conceda moedas:</p>
+        <div style="display:flex; gap:0.5rem; margin:1rem 0;">
+          <input type="text" id="user-search-input" class="phone-input" style="flex:1; max-width:100%; text-align:left;" placeholder="Pesquisar JID (ex: 244945... @s.whatsapp.net)">
+          <button onclick="searchHunter()" class="btn-action btn-blue">🔍 Buscar</button>
+        </div>
+        <div id="user-table-box" style="margin-top:1rem;">
+          <table>
+            <thead>
+              <tr>
+                <th>JID / Telefone</th>
+                <th>Nome</th>
+                <th>Nível</th>
+                <th>Berries ($)</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>244945280380@s.whatsapp.net</code></td>
+                <td><strong>KRAD (Dono)</strong></td>
+                <td>Lvl 52</td>
+                <td>$ 500,000</td>
+                <td><span style="color:#10b981; font-weight:bold;">● SUPREMO</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= ABA 4: GRUPOS & CONTROLES ================= -->
+    <div id="tab-groups" class="tab-content">
+      <div class="card">
+        <h2>💬 Grupos WhatsApp & Moderação System Dark</h2>
+        <p style="color:var(--muted); font-size:0.9rem;">Controle de grupos onde o bot está participando no servidor:</p>
+        <div style="margin-top:1rem;">
+          <table>
+            <thead>
+              <tr>
+                <th>Grupo ID</th>
+                <th>Nome do Grupo</th>
+                <th>Modo RPG</th>
+                <th>Anti-Link</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>120363409059457434@g.us</code></td>
+                <td><strong>System Dark • Caçadores</strong></td>
+                <td><span style="color:#10b981; font-weight:bold;">ATIVADO ✅</span></td>
+                <td><span style="color:#10b981; font-weight:bold;">ATIVADO ✅</span></td>
+                <td><button onclick="triggerAction('group-rpg-toggle')" class="btn-action" style="padding:0.4rem 0.8rem; font-size:0.75rem;">Alternar RPG</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= ABA 5: TRANSMISSÃO (BCAST) ================= -->
+    <div id="tab-broadcast" class="tab-content">
+      <div class="card">
+        <h2>📢 Transmissão Global em Massa (Broadcast / Bcast)</h2>
+        <p style="color:var(--muted); font-size:0.9rem;">Envie anúncios importantes para todos os grupos ou usuários do bot:</p>
+        <div style="margin-top:1rem; max-width:650px;">
+          <label style="font-size:0.8rem; color:var(--muted); text-transform:uppercase; font-weight:bold;">Público-Alvo da Transmissão:</label>
+          <select id="bcast-target" class="phone-input" style="width:100%; max-width:100%; margin-top:0.4rem; margin-bottom:1rem; text-align:left;">
+            <option value="all-groups">👥 Todos os Grupos do WhatsApp</option>
+            <option value="all-users">👤 Todos os Usuários Cadastrados</option>
+            <option value="only-vips">💎 Apenas Usuários VIPs</option>
+          </select>
+
+          <label style="font-size:0.8rem; color:var(--muted); text-transform:uppercase; font-weight:bold;">Mensagem de Anúncio (Com formatação System Dark):</label>
+          <textarea id="bcast-message" class="phone-input" style="width:100%; max-width:100%; height:120px; margin-top:0.4rem; margin-bottom:1rem; text-align:left; font-family:monospace;" placeholder="⚡ COMUNICADO KRAD: Novo Evento de Raid Colossal ativo nos grupos!"></textarea>
+
+          <button onclick="sendBroadcast()" class="btn-action btn-purple" style="width:100%;">📢 DISPARAR TRANSMISSÃO EM MASSA</button>
+          <div id="bcast-result" style="margin-top:1rem; font-size:0.88rem; color:var(--green); font-weight:bold;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= ABA 6: AJUSTES & PROTEÇÕES ================= -->
+    <div id="tab-settings" class="tab-content">
+      <div class="card">
+        <h2>⚙️ Ajustes Globais & Chaves de Proteção</h2>
+        <p style="color:var(--muted); font-size:0.9rem;">Ative ou desative proteções gerais em tempo real sem precisar reiniciar:</p>
+        
+        <div style="margin-top:1.5rem; max-width:700px;">
+          <div class="switch-row">
+            <div>
+              <div class="switch-label">🛡️ Anti-Spam & Anti-Flood Global</div>
+              <div class="switch-desc">Limita comandos consecutivos em intervalo de 2.5s para evitar banimento do WhatsApp.</div>
+            </div>
+            <button onclick="toggleSetting('antispam')" class="btn-action btn-green" style="padding:0.5rem 1.2rem;">ATIVADO ✅</button>
+          </div>
+
+          <div class="switch-row">
+            <div>
+              <div class="switch-label">🛡️ Anti-Call (Bloquear Quem Ligar)</div>
+              <div class="switch-desc">Rejeita ligações de voz/vídeo automaticamente para proteger o número do bot.</div>
+            </div>
+            <button onclick="toggleSetting('anticall')" class="btn-action btn-green" style="padding:0.5rem 1.2rem;">ATIVADO ✅</button>
+          </div>
+
+          <div class="switch-row">
+            <div>
+              <div class="switch-label">⚔️ Modo RPG Multiverso Anime Global</div>
+              <div class="switch-desc">Permite entrada em Dungeons, Gacha e Duelos PvP 1x1 em grupos autorizados.</div>
+            </div>
+            <button onclick="toggleSetting('modorpg')" class="btn-action btn-green" style="padding:0.5rem 1.2rem;">ATIVADO ✅</button>
+          </div>
+
+          <div class="switch-row">
+            <div>
+              <div class="switch-label">🔞 Modo NSFW / Menu +18</div>
+              <div class="switch-desc">Habilita conteúdos adultos restritos apenas para usuários VIP confirmados.</div>
+            </div>
+            <button onclick="toggleSetting('nsfw')" class="btn-action" style="background:#334155; padding:0.5rem 1.2rem;">DESATIVADO ❌</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= ABA 7: ADMINISTRAÇÃO RPG ================= -->
     <div id="tab-rpg" class="tab-content">
       <div class="card">
         <h2>⛩️ RPG Multiverso Anime — Central de Administração</h2>
         <p style="color:var(--muted); font-size:0.9rem;">Estatísticas gerais do ecossistema de Solo Leveling, Naruto, One Piece e Jujutsu Kaisen:</p>
-
         <div class="stat-grid">
           <div class="stat-item">
             <div class="num">${rpgStats.totalUsers || 0}</div>
@@ -607,13 +752,18 @@ function getDashboardPage(statusData, apisList, rpgStats) {
       </div>
     </div>
 
-    <!-- ================= ABA 4: DIAGNÓSTICO DE APIS ================= -->
-    <div id="tab-apis" class="tab-content">
+    <!-- ================= ABA 8: NUVEM & DIAGNÓSTICO DE APIS ================= -->
+    <div id="tab-backup" class="tab-content">
       <div class="card">
-        <h2>🌐 Diagnóstico e Saúde das 13 APIs Integradas (System Dark)</h2>
-        <p style="color:var(--muted); font-size:0.9rem;">Verificação contínua das chaves e endpoints do sistema (100% Aprovado):</p>
+        <h2>💾 Nuvem, Sincronização & Diagnóstico das 13 APIs Integradas</h2>
+        <p style="color:var(--muted); font-size:0.9rem;">Verificação contínua das chaves e estado do MongoDB Atlas (100% Aprovado):</p>
 
-        <div style="max-height: 420px; overflow-y: auto; margin-top: 1.25rem;">
+        <div style="display:flex; gap:0.8rem; margin:1rem 0; flex-wrap:wrap;">
+          <button onclick="triggerAction('backup')" class="btn-action btn-blue">☁️ Sincronizar Agora com MongoDB Atlas</button>
+          <a href="/api/backup-download" class="btn-action" style="background:#1e293b; text-decoration:none;">📥 Baixar Snapshot JSON Local</a>
+        </div>
+
+        <div style="max-height: 380px; overflow-y: auto; margin-top: 1.25rem;">
           <table>
             <thead>
               <tr>
@@ -706,7 +856,7 @@ function getDashboardPage(statusData, apisList, rpgStats) {
 
     async function triggerAction(action) {
       const logEl = document.getElementById('admin-log');
-      logEl.innerText = '⏳ Executando ação: ' + action + '...';
+      if (logEl) logEl.innerText = '⏳ Executando ação: ' + action + '...';
       logToTerminal('Executando comando administrativo: ' + action, 'info');
 
       try {
@@ -716,13 +866,13 @@ function getDashboardPage(statusData, apisList, rpgStats) {
           body: JSON.stringify({ action })
         });
         const data = await res.json();
-        logEl.innerText = '✅ ' + (data.message || 'Ação concluída com sucesso!');
+        if (logEl) logEl.innerText = '✅ ' + (data.message || 'Ação concluída com sucesso!');
         logToTerminal('Ação concluída: ' + (data.message || action), 'success');
         if (action === 'raid-kaido' || action === 'raid-sukuna' || action === 'clear-session' || action === 'restart') {
           setTimeout(() => location.reload(), 2200);
         }
       } catch (err) {
-        logEl.innerText = '❌ Erro ao executar ação: ' + err.message;
+        if (logEl) logEl.innerText = '❌ Erro ao executar ação: ' + err.message;
         logToTerminal('Falha na ação ' + action + ': ' + err.message, 'error');
       }
     }
@@ -786,6 +936,53 @@ function getDashboardPage(statusData, apisList, rpgStats) {
         resEl.style.color = '#ef4444';
         resEl.innerText = '❌ Erro: ' + err.message;
       }
+    }
+
+    async function sendBroadcast() {
+      const target = document.getElementById('bcast-target').value;
+      const message = document.getElementById('bcast-message').value.trim();
+      const resEl = document.getElementById('bcast-result');
+
+      if (!message) {
+        resEl.style.color = '#ef4444';
+        resEl.innerText = '⚠️ Digite o texto do comunicado!';
+        return;
+      }
+
+      resEl.style.color = '#38bdf8';
+      resEl.innerText = '⏳ Disparando transmissão global em massa...';
+      logToTerminal('Iniciando Broadcast para: ' + target, 'info');
+
+      try {
+        const res = await fetch('/api/broadcast', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target, message })
+        });
+        const data = await res.json();
+        resEl.style.color = '#10b981';
+        resEl.innerText = '✅ ' + (data.message || 'Transmissão em massa executada com sucesso!');
+        logToTerminal('Broadcast enviado.', 'success');
+      } catch (err) {
+        resEl.style.color = '#ef4444';
+        resEl.innerText = '❌ Erro no Broadcast: ' + err.message;
+      }
+    }
+
+    function toggleSetting(setting) {
+      logToTerminal('Alterando chave global: ' + setting, 'info');
+      fetch('/api/settings-toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ setting })
+      }).then(res => res.json()).then(data => {
+        logToTerminal('Configuração ' + setting + ' atualizada.', 'success');
+      });
+    }
+
+    function searchHunter() {
+      const q = document.getElementById('user-search-input').value.trim();
+      logToTerminal('Pesquisando Caçador por JID/Telefone: ' + q, 'info');
     }
   </script>
 </body>

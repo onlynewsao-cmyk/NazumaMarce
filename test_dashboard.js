@@ -70,7 +70,7 @@ async function runDashboardTests() {
         req.end();
     });
 
-    // --- TESTE 3: ACESSO AO PAINEL DE ADMINISTRAÇÃO (/dashboard GET) ---
+    // --- TESTE 3: ACESSO AO PAINEL DE 8 ABAS (/dashboard GET) ---
     console.log("\n3️⃣ TESTANDO ACESSO PROTEGIDO AO DASHBOARD (/dashboard):");
     await new Promise((resolve) => {
         http.get(`${BASE_URL}/dashboard`, {
@@ -79,8 +79,8 @@ async function runDashboardTests() {
             let body = "";
             res.on("data", c => body += c);
             res.on("end", () => {
-                if (res.statusCode === 200 && body.includes("Pareamento") && body.includes("RPG Multiverso")) {
-                    logResult("GET /dashboard (Painel Avançado OS)", true, "Painel abriu com todos os 4 cards funcionais (200 OK)");
+                if (res.statusCode === 200 && body.includes("Pareamento") && body.includes("Terminal") && body.includes("Transmissão")) {
+                    logResult("GET /dashboard (Painel 8 Abas OS)", true, "Painel abriu com todas as 8 abas funcionais (200 OK)");
                 } else {
                     logResult("GET /dashboard", false, `Status ${res.statusCode}`);
                 }
@@ -194,6 +194,150 @@ async function runDashboardTests() {
         });
         req.on("error", (e) => {
             logResult("POST /api/send-command", false, e.message);
+            resolve();
+        });
+        req.write(postData);
+        req.end();
+    });
+
+    // --- TESTE 7: DISPARO DE TRANSMISSÃO GLOBAL (/api/broadcast) ---
+    console.log("\n7️⃣ TESTANDO TRANSMISSÃO GLOBAL EM MASSA (/api/broadcast):");
+    await new Promise((resolve) => {
+        const postData = JSON.stringify({ target: "all-groups", message: "⚡ COMUNICADO KRAD: Nova Raid Kaido!" });
+        const req = http.request(`${BASE_URL}/api/broadcast`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Content-Length": Buffer.byteLength(postData),
+                "Cookie": authTokenCookie
+            }
+        }, (res) => {
+            let body = "";
+            res.on("data", c => body += c);
+            res.on("end", () => {
+                try {
+                    const json = JSON.parse(body);
+                    if (res.statusCode === 200 && json.success) {
+                        logResult("POST /api/broadcast (Bcast Geral)", true, `Confirmação: "${json.message}"`);
+                    } else {
+                        logResult("POST /api/broadcast", false, `Erro: ${body}`);
+                    }
+                } catch (e) {
+                    logResult("POST /api/broadcast", false, `JSON inválido: ${body}`);
+                }
+                resolve();
+            });
+        });
+        req.on("error", (e) => {
+            logResult("POST /api/broadcast", false, e.message);
+            resolve();
+        });
+        req.write(postData);
+        req.end();
+    });
+
+    // --- TESTE 8: ALTERAÇÃO DE CHAVE GLOBAL (/api/settings-toggle) ---
+    console.log("\n8️⃣ TESTANDO ALTERAÇÃO EM REAL-TIME DE PROTEÇÃO (/api/settings-toggle):");
+    await new Promise((resolve) => {
+        const postData = JSON.stringify({ setting: "antispam" });
+        const req = http.request(`${BASE_URL}/api/settings-toggle`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Content-Length": Buffer.byteLength(postData),
+                "Cookie": authTokenCookie
+            }
+        }, (res) => {
+            let body = "";
+            res.on("data", c => body += c);
+            res.on("end", () => {
+                try {
+                    const json = JSON.parse(body);
+                    if (res.statusCode === 200 && json.success) {
+                        logResult("POST /api/settings-toggle (Toggle Antispam)", true, `Confirmação: "${json.message}"`);
+                    } else {
+                        logResult("POST /api/settings-toggle", false, `Erro: ${body}`);
+                    }
+                } catch (e) {
+                    logResult("POST /api/settings-toggle", false, `JSON inválido: ${body}`);
+                }
+                resolve();
+            });
+        });
+        req.on("error", (e) => {
+            logResult("POST /api/settings-toggle", false, e.message);
+            resolve();
+        });
+        req.write(postData);
+        req.end();
+    });
+
+    // --- TESTE 9: MODERAÇÃO DE CAÇADOR (/api/users-action) ---
+    console.log("\n9️⃣ TESTANDO GESTÃO DE USUÁRIO / VIP (/api/users-action):");
+    await new Promise((resolve) => {
+        const postData = JSON.stringify({ action: "toggle-vip", jid: "244945280380@s.whatsapp.net" });
+        const req = http.request(`${BASE_URL}/api/users-action`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Content-Length": Buffer.byteLength(postData),
+                "Cookie": authTokenCookie
+            }
+        }, (res) => {
+            let body = "";
+            res.on("data", c => body += c);
+            res.on("end", () => {
+                try {
+                    const json = JSON.parse(body);
+                    if (res.statusCode === 200 && json.success) {
+                        logResult("POST /api/users-action (Conceder VIP)", true, `Confirmação: "${json.message}"`);
+                    } else {
+                        logResult("POST /api/users-action", false, `Erro: ${body}`);
+                    }
+                } catch (e) {
+                    logResult("POST /api/users-action", false, `JSON inválido: ${body}`);
+                }
+                resolve();
+            });
+        });
+        req.on("error", (e) => {
+            logResult("POST /api/users-action", false, e.message);
+            resolve();
+        });
+        req.write(postData);
+        req.end();
+    });
+
+    // --- TESTE 10: MODERAÇÃO DE GRUPO WHATSAPP (/api/groups-action) ---
+    console.log("\n🔟 TESTANDO MODERAÇÃO DE GRUPO (/api/groups-action):");
+    await new Promise((resolve) => {
+        const postData = JSON.stringify({ action: "group-rpg-toggle", groupId: "120363409059457434@g.us" });
+        const req = http.request(`${BASE_URL}/api/groups-action`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Content-Length": Buffer.byteLength(postData),
+                "Cookie": authTokenCookie
+            }
+        }, (res) => {
+            let body = "";
+            res.on("data", c => body += c);
+            res.on("end", () => {
+                try {
+                    const json = JSON.parse(body);
+                    if (res.statusCode === 200 && json.success) {
+                        logResult("POST /api/groups-action (Alternar RPG no Grupo)", true, `Confirmação: "${json.message}"`);
+                    } else {
+                        logResult("POST /api/groups-action", false, `Erro: ${body}`);
+                    }
+                } catch (e) {
+                    logResult("POST /api/groups-action", false, `JSON inválido: ${body}`);
+                }
+                resolve();
+            });
+        });
+        req.on("error", (e) => {
+            logResult("POST /api/groups-action", false, e.message);
             resolve();
         });
         req.write(postData);

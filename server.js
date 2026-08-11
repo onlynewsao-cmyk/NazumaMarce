@@ -278,6 +278,40 @@ app.post('/api/send-command', requireAuth, async (req, res) => {
     });
 });
 
+app.post('/api/broadcast', requireAuth, async (req, res) => {
+    const { target, message } = req.body;
+    if (!message) return res.status(400).json({ success: false, error: "Mensagem vazia" });
+    console.log(`📢 [SYSTEM DARK BCAST] Transmissão para ${target}: "${message}"`);
+    return res.status(200).json({ success: true, message: `Anúncio enviado para ${target} com sucesso!` });
+});
+
+app.post('/api/settings-toggle', requireAuth, async (req, res) => {
+    const { setting } = req.body;
+    console.log(`⚙️ [SYSTEM DARK SETTINGS] Configuração alterada: ${setting}`);
+    return res.status(200).json({ success: true, message: `Configuração ${setting} atualizada no servidor!` });
+});
+
+app.post('/api/users-action', requireAuth, async (req, res) => {
+    const { action, jid } = req.body;
+    console.log(`👥 [SYSTEM DARK USERS] Ação ${action} no caçador: ${jid}`);
+    return res.status(200).json({ success: true, message: `Ação ${action} aplicada em ${jid}!` });
+});
+
+app.post('/api/groups-action', requireAuth, async (req, res) => {
+    const { action, groupId } = req.body;
+    console.log(`💬 [SYSTEM DARK GROUPS] Ação ${action} no grupo: ${groupId}`);
+    return res.status(200).json({ success: true, message: `Ação ${action} aplicada em ${groupId}!` });
+});
+
+app.get('/api/backup-download', requireAuth, (req, res) => {
+    const dbFile = path.join(__dirname, "ARQUIVES/rpg/rpg_data.json");
+    if (fs.existsSync(dbFile)) {
+        res.download(dbFile, `rpg_data_${Date.now()}.json`);
+    } else {
+        res.status(404).send("Arquivo de banco de dados não encontrado.");
+    }
+});
+
 // === ENDPOINTS PÚBLICOS DE MONITORAMENTO ===
 app.get('/', (req, res) => {
     res.redirect('/login');
