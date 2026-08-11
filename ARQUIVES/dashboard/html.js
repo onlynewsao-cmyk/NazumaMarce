@@ -238,6 +238,10 @@ function getDashboardPage(statusData, apisList, rpgStats) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phoneNumber: phoneInput })
         });
+        if (res.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
         const data = await res.json();
 
         if (data.success && data.pairCode) {

@@ -35,6 +35,9 @@ function requireAuth(req, res, next) {
         req.userToken = token;
         return next();
     }
+    if (req.path.startsWith('/api/')) {
+        return res.status(401).json({ success: false, error: "Sessão expirada ou inválida. Por favor, atualize a página e faça login novamente." });
+    }
     res.redirect('/login');
 }
 
