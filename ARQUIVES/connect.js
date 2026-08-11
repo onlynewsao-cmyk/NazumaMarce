@@ -181,7 +181,7 @@ process.on("message", async (msg) => {
 
             // Pausa de 2000ms para a Baileys [2, 3000, 1035194821] estabilizar (método oficial dark-bot)
             console.log(colors.cyan("⏳ [SYSTEM DARK] Aguardando inicialização da Baileys (2000ms)..."));
-            await new Promise(r => setTimeout(r, 2000));
+            await new Promise(r => setTimeout(r, 3500)); // 3.5s para garantir que a Baileys v2026 abriu o socket com a Meta
 
             console.log(colors.cyan(`⚡ [SYSTEM DARK] Solicitando código ao servidor do WhatsApp para ${num}...`));
             const rawCode = await Promise.race([
@@ -217,7 +217,7 @@ async function startConnect() {
         version: [2, 3000, 1035194821], // VERSÃO CORRIGIDA PARA WA WEB / PAIR CODE (2026)
         logger,        
         printQRInTerminal: false,
-        browser: ["System Dark", "Chrome", "114.0.5735.198"],
+        browser: Browsers.ubuntu("Chrome"),
         auth: {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, logger),
