@@ -271,7 +271,7 @@ async function startConnect() {
     });
 
     SystemDark.ev.on("messages.upsert", (upsert) => {
-        const startSystemDark = require("../lauma.js");
+        const startSystemDark = require("../System Dark.js");
         startSystemDark(upsert, SystemDark, qrcode).catch(console.log);
     });
 }
