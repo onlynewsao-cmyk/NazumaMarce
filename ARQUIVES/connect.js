@@ -147,89 +147,92 @@ async function showMenu(SystemDark) {
     }
 }
 
+// Variável global para solicitação pendente de pareamento no timing perfeito
+let pendingPairingNumber = null;
+let currentSocketInstance = null;
+
+process.on("message", async (msg) => {
+    if (msg && msg.type === "REQUEST_PAIR_CODE" && msg.phoneNumber) {
+        console.log(colors.cyan(`⚡ [DASHBOARD] Recebida solicitação de Pair Code para: ${msg.phoneNumber}`));
+        pendingPairingNumber = msg.phoneNumber;
+        if (currentSocketInstance) {
+            try { currentSocketInstance.end(); } catch(e) {}
+        } else {
+            startConnect();
+        }
+    }
+});
+
 async function startConnect() {
 const { state, saveCreds } = await useMultiFileAuthState(qrcode);
 const { version, isLatest } = await fetchLatestBaileysVersion();
 
 const SystemDark = makeWASocket({
-version,
-logger,        
-printQRInTerminal: false,
-browser: Browsers.ubuntu("Chrome"),
-auth: {
-creds: state.creds,
-keys: makeCacheableSignalKeyStore(state.keys, logger),
-},
-msgRetryCounterCache,
-generateHighQualityLinkPreview: true,
-syncFullHistory: false,
-keepAliveIntervalMs: 40000,
-markOnlineOnConnect: true,
+    version,
+    logger,        
+    printQRInTerminal: false,
+    browser: ["System Dark", "Chrome", "20.0.04"],
+    auth: {
+        creds: state.creds,
+        keys: makeCacheableSignalKeyStore(state.keys, logger),
+    },
+    msgRetryCounterCache,
+    generateHighQualityLinkPreview: true,
+    syncFullHistory: false,
+    keepAliveIntervalMs: 30000,
+    markOnlineOnConnect: true,
+    connectTimeoutMs: 60000,
 });
 
-    // Registrar o ouvinte IPC GLOBALMENTE para o Web Dashboard (server.js)
-    process.on("message", async (msg) => {
-        if (msg && msg.type === "REQUEST_PAIR_CODE" && msg.phoneNumber) {
-            try {
-                if (SystemDark.authState?.creds?.registered) {
-                    console.warn(colors.yellow("⚠️ [DASHBOARD] O bot já está conectado ao WhatsApp! Para parear novo número, apague a sessão atual no painel."));
-                    if (process.send) {
-                        process.send({ type: "PAIR_CODE_ERROR", error: "Bot já está conectado! Use Limpar Sessão no painel." });
-                    }
-                    return;
-                }
-                console.log(colors.cyan(`⚡ [DASHBOARD] Solicitando Pair Code REAL à Baileys para: ${msg.phoneNumber}...`));
-                const code = await SystemDark.requestPairingCode(msg.phoneNumber);
-                console.log(colors.green(`⚡ [DASHBOARD] Pair Code REAL gerado pelo WhatsApp: ${code}`));
-                if (process.send) {
-                    process.send({ type: "PAIR_CODE_RESULT", code, phoneNumber: msg.phoneNumber });
-                }
-                fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ code, phoneNumber: msg.phoneNumber, timestamp: Date.now() }), "utf8");
-            } catch (err) {
-                console.error(colors.red(`❌ [DASHBOARD] Erro ao solicitar Pair Code à Baileys: ${err.message}`));
-                if (process.send) {
-                    process.send({ type: "PAIR_CODE_ERROR", error: err.message });
-                }
-                fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ error: err.message, timestamp: Date.now() }), "utf8");
-            }
-        }
-    });
-
-    if (!fs.existsSync(`${qrcode}/creds.json`)) {
-        await showMenu(SystemDark);
-    }
+currentSocketInstance = SystemDark;
 
     SystemDark.ev.on("creds.update", saveCreds);
 
-    SystemDark.ev.on("connection.update", (update) => {
-        const { connection, lastDisconnect } = update;
+    SystemDark.ev.on("connection.update", async (update) => {
+        const { connection, lastDisconnect, qr } = update;
         const shouldReconnect = new Boom(lastDisconnect?.error)?.output.statusCode;
 
+        // GATILHO PERFEITO PARA PAIR CODE: qr ou connecting quando não registrado
+        if ((qr || connection === "connecting") && !SystemDark.authState.creds.registered && pendingPairingNumber) {
+            const num = pendingPairingNumber;
+            pendingPairingNumber = null;
+            console.log(colors.cyan(`⚡ [SYSTEM DARK] Canal TLS pronto! Solicitando Pair Code para ${num}...`));
+            setTimeout(async () => {
+                try {
+                    const code = await SystemDark.requestPairingCode(num);
+                    console.log(colors.green(`⚡ [SYSTEM DARK] Pair Code REAL do WhatsApp: ${code}`));
+                    if (process.send) {
+                        process.send({ type: "PAIR_CODE_RESULT", code, phoneNumber: num });
+                    }
+                    fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ code, phoneNumber: num, timestamp: Date.now() }), "utf8");
+                } catch (err) {
+                    console.error(colors.red(`❌ [SYSTEM DARK] Erro no requestPairingCode: ${err.message}`));
+                    if (process.send) {
+                        process.send({ type: "PAIR_CODE_ERROR", error: err.message });
+                    }
+                }
+            }, 2500); // 2.5s após connecting/qr para estabilidade do túnel Noise
+        }
+
         switch (connection) {
-            case 'close':
+            case "close":
                 if (shouldReconnect) {
-                    if (shouldReconnect == 401) console.log(colors.red(mess.ErrorBaileys_401()));
-                    else if (shouldReconnect == 408) console.log(colors.yellow(mess.ErrorBaileys_408()));
-                    else if (shouldReconnect == 411) console.log(colors.yellow(mess.ErrorBaileys_411()));
-                    else if (shouldReconnect == 428) console.log(colors.yellow(mess.ErrorBaileys_428()));
-                    else if (shouldReconnect == 440) console.log(colors.gray(mess.ErrorBaileys_440()));
-                    else if (shouldReconnect == 500) console.log(colors.gray(mess.ErrorBaileys_500()));
-                    else if (shouldReconnect == 503) console.log(colors.gray("Erro desconhecido! Error: 503."));
-                    else if (shouldReconnect == 515) console.log(colors.gray(mess.ErrorBaileys_515()));
-                    else console.log(`${colors.red("[CONNECTION CLOSED]")} Conexão fechada por motivo: ${lastDisconnect?.error}`);
-                    startConnect();
+                    console.log(`${colors.red("[CONNECTION CLOSED]")} Conexão fechada por motivo: ${lastDisconnect?.error}`);
+                    setTimeout(startConnect, 3000);
                 }
                 break;
 
-            case 'connecting':
+            case "connecting":
                 console.log(`${colors.white("×")} [${colors.red(date,time)}] - ${colors.yellow(mess.connecting())}`);
                 break;
 
-            case 'open':
+            case "open":
                 console.log(banner3.string);
                 console.log(banner2.string);
                 console.log(colors.green(mess.open()));
-                rl.close();
+                if (process.send) {
+                    process.send({ type: "STATUS_UPDATE", connected: true });
+                }
                 break;
         }
     });
