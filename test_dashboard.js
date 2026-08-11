@@ -70,8 +70,8 @@ async function runDashboardTests() {
         req.end();
     });
 
-    // --- TESTE 3: ACESSO AO PAINEL DE 8 ABAS (/dashboard GET) ---
-    console.log("\n3️⃣ TESTANDO ACESSO PROTEGIDO AO DASHBOARD (/dashboard):");
+    // --- TESTE 3: ACESSO AO PAINEL SIMPLIFICADO (/dashboard GET) ---
+    console.log("\n3️⃣ TESTANDO ACESSO PROTEGIDO AO DASHBOARD SIMPLES (/dashboard):");
     await new Promise((resolve) => {
         http.get(`${BASE_URL}/dashboard`, {
             headers: { "Cookie": authTokenCookie }
@@ -79,8 +79,8 @@ async function runDashboardTests() {
             let body = "";
             res.on("data", c => body += c);
             res.on("end", () => {
-                if (res.statusCode === 200 && body.includes("Pareamento") && body.includes("Terminal") && body.includes("Transmissão")) {
-                    logResult("GET /dashboard (Painel 8 Abas OS)", true, "Painel abriu com todas as 8 abas funcionais (200 OK)");
+                if (res.statusCode === 200 && body.includes("PAREAMENTO OFICIAL WHATSAPP (PAIR CODE)") && body.includes("RPG Multiverso Anime — Administração")) {
+                    logResult("GET /dashboard (Painel Simples OS)", true, "Painel abriu limpo e sem poluição (200 OK)");
                 } else {
                     logResult("GET /dashboard", false, `Status ${res.statusCode}`);
                 }
@@ -128,11 +128,11 @@ async function runDashboardTests() {
         req.end();
     });
 
-    // --- TESTE 5: BONIFICAÇÃO AVANÇADA DE CAÇADORES (/api/admin-action - reward-user) ---
-    console.log("\n5️⃣ TESTANDO PREMIAÇÃO DE CAÇADOR (/api/admin-action - reward-user):");
+    // --- TESTE 5: ENDPOINT DE PAIR CODE COM RESILIÊNCIA (/api/paircode POST) ---
+    console.log("\n5️⃣ TESTANDO MOTOR RESILIENTE DE PAIR CODE (/api/paircode):");
     await new Promise((resolve) => {
-        const postData = JSON.stringify({ action: "reward-user", target: "244945280380@s.whatsapp.net", amount: 50000 });
-        const req = http.request(`${BASE_URL}/api/admin-action`, {
+        const postData = JSON.stringify({ phoneNumber: "244949926074" });
+        const req = http.request(`${BASE_URL}/api/paircode`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -146,198 +146,18 @@ async function runDashboardTests() {
                 try {
                     const json = JSON.parse(body);
                     if (res.statusCode === 200 && json.success) {
-                        logResult("POST /api/admin-action (Bonificação de Berries)", true, `Prêmio transferido: "${json.message}"`);
+                        logResult("POST /api/paircode (Resiliência)", true, `Status do endpoint de pareamento OK (200)`);
                     } else {
-                        logResult("POST /api/admin-action", false, `Erro: ${body}`);
+                        logResult("POST /api/paircode", false, `Erro: ${body}`);
                     }
                 } catch (e) {
-                    logResult("POST /api/admin-action", false, `JSON inválido: ${body}`);
+                    logResult("POST /api/paircode", false, `JSON inválido: ${body}`);
                 }
                 resolve();
             });
         });
         req.on("error", (e) => {
-            logResult("POST /api/admin-action", false, e.message);
-            resolve();
-        });
-        req.write(postData);
-        req.end();
-    });
-
-    // --- TESTE 6: EXECUÇÃO DE COMANDO REMOTO VIA PAINEL (/api/send-command) ---
-    console.log("\n6️⃣ TESTANDO EXECUÇÃO REMOTA DE COMANDO RPG (/api/send-command):");
-    await new Promise((resolve) => {
-        const postData = JSON.stringify({ target: "244945280380@s.whatsapp.net", text: "/perfil" });
-        const req = http.request(`${BASE_URL}/api/send-command`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Content-Length": Buffer.byteLength(postData),
-                "Cookie": authTokenCookie
-            }
-        }, (res) => {
-            let body = "";
-            res.on("data", c => body += c);
-            res.on("end", () => {
-                try {
-                    const json = JSON.parse(body);
-                    if (res.statusCode === 200 && json.success && json.response.includes("SISTEMA DE CAÇADORES")) {
-                        logResult("POST /api/send-command (Comando /perfil)", true, `Bot respondeu com a ficha do caçador (100% OK)`);
-                    } else {
-                        logResult("POST /api/send-command", false, `Erro: ${body}`);
-                    }
-                } catch (e) {
-                    logResult("POST /api/send-command", false, `JSON inválido: ${body}`);
-                }
-                resolve();
-            });
-        });
-        req.on("error", (e) => {
-            logResult("POST /api/send-command", false, e.message);
-            resolve();
-        });
-        req.write(postData);
-        req.end();
-    });
-
-    // --- TESTE 7: DISPARO DE TRANSMISSÃO GLOBAL (/api/broadcast) ---
-    console.log("\n7️⃣ TESTANDO TRANSMISSÃO GLOBAL EM MASSA (/api/broadcast):");
-    await new Promise((resolve) => {
-        const postData = JSON.stringify({ target: "all-groups", message: "⚡ COMUNICADO KRAD: Nova Raid Kaido!" });
-        const req = http.request(`${BASE_URL}/api/broadcast`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Content-Length": Buffer.byteLength(postData),
-                "Cookie": authTokenCookie
-            }
-        }, (res) => {
-            let body = "";
-            res.on("data", c => body += c);
-            res.on("end", () => {
-                try {
-                    const json = JSON.parse(body);
-                    if (res.statusCode === 200 && json.success) {
-                        logResult("POST /api/broadcast (Bcast Geral)", true, `Confirmação: "${json.message}"`);
-                    } else {
-                        logResult("POST /api/broadcast", false, `Erro: ${body}`);
-                    }
-                } catch (e) {
-                    logResult("POST /api/broadcast", false, `JSON inválido: ${body}`);
-                }
-                resolve();
-            });
-        });
-        req.on("error", (e) => {
-            logResult("POST /api/broadcast", false, e.message);
-            resolve();
-        });
-        req.write(postData);
-        req.end();
-    });
-
-    // --- TESTE 8: ALTERAÇÃO DE CHAVE GLOBAL (/api/settings-toggle) ---
-    console.log("\n8️⃣ TESTANDO ALTERAÇÃO EM REAL-TIME DE PROTEÇÃO (/api/settings-toggle):");
-    await new Promise((resolve) => {
-        const postData = JSON.stringify({ setting: "antispam" });
-        const req = http.request(`${BASE_URL}/api/settings-toggle`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Content-Length": Buffer.byteLength(postData),
-                "Cookie": authTokenCookie
-            }
-        }, (res) => {
-            let body = "";
-            res.on("data", c => body += c);
-            res.on("end", () => {
-                try {
-                    const json = JSON.parse(body);
-                    if (res.statusCode === 200 && json.success) {
-                        logResult("POST /api/settings-toggle (Toggle Antispam)", true, `Confirmação: "${json.message}"`);
-                    } else {
-                        logResult("POST /api/settings-toggle", false, `Erro: ${body}`);
-                    }
-                } catch (e) {
-                    logResult("POST /api/settings-toggle", false, `JSON inválido: ${body}`);
-                }
-                resolve();
-            });
-        });
-        req.on("error", (e) => {
-            logResult("POST /api/settings-toggle", false, e.message);
-            resolve();
-        });
-        req.write(postData);
-        req.end();
-    });
-
-    // --- TESTE 9: MODERAÇÃO DE CAÇADOR (/api/users-action) ---
-    console.log("\n9️⃣ TESTANDO GESTÃO DE USUÁRIO / VIP (/api/users-action):");
-    await new Promise((resolve) => {
-        const postData = JSON.stringify({ action: "toggle-vip", jid: "244945280380@s.whatsapp.net" });
-        const req = http.request(`${BASE_URL}/api/users-action`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Content-Length": Buffer.byteLength(postData),
-                "Cookie": authTokenCookie
-            }
-        }, (res) => {
-            let body = "";
-            res.on("data", c => body += c);
-            res.on("end", () => {
-                try {
-                    const json = JSON.parse(body);
-                    if (res.statusCode === 200 && json.success) {
-                        logResult("POST /api/users-action (Conceder VIP)", true, `Confirmação: "${json.message}"`);
-                    } else {
-                        logResult("POST /api/users-action", false, `Erro: ${body}`);
-                    }
-                } catch (e) {
-                    logResult("POST /api/users-action", false, `JSON inválido: ${body}`);
-                }
-                resolve();
-            });
-        });
-        req.on("error", (e) => {
-            logResult("POST /api/users-action", false, e.message);
-            resolve();
-        });
-        req.write(postData);
-        req.end();
-    });
-
-    // --- TESTE 10: MODERAÇÃO DE GRUPO WHATSAPP (/api/groups-action) ---
-    console.log("\n🔟 TESTANDO MODERAÇÃO DE GRUPO (/api/groups-action):");
-    await new Promise((resolve) => {
-        const postData = JSON.stringify({ action: "group-rpg-toggle", groupId: "120363409059457434@g.us" });
-        const req = http.request(`${BASE_URL}/api/groups-action`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Content-Length": Buffer.byteLength(postData),
-                "Cookie": authTokenCookie
-            }
-        }, (res) => {
-            let body = "";
-            res.on("data", c => body += c);
-            res.on("end", () => {
-                try {
-                    const json = JSON.parse(body);
-                    if (res.statusCode === 200 && json.success) {
-                        logResult("POST /api/groups-action (Alternar RPG no Grupo)", true, `Confirmação: "${json.message}"`);
-                    } else {
-                        logResult("POST /api/groups-action", false, `Erro: ${body}`);
-                    }
-                } catch (e) {
-                    logResult("POST /api/groups-action", false, `JSON inválido: ${body}`);
-                }
-                resolve();
-            });
-        });
-        req.on("error", (e) => {
-            logResult("POST /api/groups-action", false, e.message);
+            logResult("POST /api/paircode", false, e.message);
             resolve();
         });
         req.write(postData);

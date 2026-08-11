@@ -1,7 +1,7 @@
 //=============[ COMEÇO DE TUDO ]=============\\
 const { downloadContentFromMessage, relayWAMessage, mentionedJid, MediaType, Browser, MessageType, Presence, Mimetype, Browsers, delay, getLastMessageInChat, downloadMediaMessage,WA_DEFAULT_EPHEMERAL, generateWAMessageFromContent, proto, logger, makeInMemoryStore, getContentType, INativeFlowMessage, prepareWAMessageMedia, jidNormalizedUser } = require('@whiskeysockets/baileys');
 
-const baileys_helpers = require("baileys_helpers");
+const baileys_helpers = require("./ARQUIVES/funcoes/baileys_helpers.js");
 
 const { hydratedTemplate, sendInteractiveMessage, sendButtons, sendAlbumMessage } = baileys_helpers;
 
