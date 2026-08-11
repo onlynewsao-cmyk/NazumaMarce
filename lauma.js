@@ -9193,166 +9193,18 @@ isAdminRequired: true
 });
 break;
 
-case 'menu': {
-try {
-await reagir(from, "🌸");
-
-const listaMenus = {
-title: "𖥔⃟🪷 ᴍᴇɴᴜ-ʟɪsᴛ 𖥔⃟🪷",
-sections: [
-{
-title: "𖥔⃟💮 ᴍᴇɴᴜs ᴘʀɪɴᴄɪᴘᴀɪs 𖥔⃟💮",
-highlight_label: `${ownerName}`,
-rows: [
-
-{
-header: "𖥔⃟🪷 ᴍᴇɴᴜ-ᴘʀɪɴᴄɪᴘᴀʟ 𖥔⃟🪷",
-title: "🌸 ᴄᴏᴍᴀɴᴅᴏs ʙᴀ́sɪᴄᴏs ᴅᴏ ʙᴏᴛ.",
-id: prefix + "menuzz"
-},
-{
-header: "𖥔⃟💮 ᴍᴇɴᴜ-ᴄᴏɪɴs 𖥔⃟💮",
-title: "🌸 sɪsᴛᴇᴍᴀ ᴅᴇ ᴄᴏɪɴs ᴇ ᴀᴠᴇɴᴛᴜʀᴀs.",
-id: prefix + "menucoins"
-},
-{
-header: "𖥔⃟🪷 ᴍᴇɴᴜ+18 𖥔⃟🪷",
-title: "🌸 ꜰᴜɴᴄᴏᴇs +18 (ᴠɪᴘ).",
-id: prefix + "menu18"
-},
-{
-header: "𖥔⃟💮 ᴍᴇɴᴜ-ᴀᴅᴍ 𖥔⃟💮",
-title: "🌸 ꜰᴜɴᴄᴏᴇs ᴘᴀʀᴀ ᴀᴅᴍɪɴs.",
-id: prefix + "menuadm"
-},
-
-  
-{
-header: "𖥔⃟🪷 ᴍᴇɴᴜ-ᴅᴏɴᴏ 𖥔⃟🪷",
-title: "🌸 ꜰᴜɴᴄᴏᴇs ᴇxᴄʟᴜsɪᴠᴀs ᴅᴏ ᴅᴏɴᴏ.",
-id: prefix + "menudono"
-},
-{
-header: "𖥔⃟💮 ᴍᴇɴᴜ-ʟᴏɢᴏs 𖥔⃟💮",
-title: "🌸 ᴄʀɪᴀᴄᴀᴏ ᴅᴇ ʟᴏɢᴏs ᴘᴇʀsᴏɴᴀʟɪᴢᴀᴅᴀs.",
-id: prefix + "menulogos"
-},
-{
-header: "𖥔⃟🪷 ᴍᴇɴᴜ-ʙʀɪɴᴄᴀᴅᴇɪʀᴀs 𖥔⃟🪷",
-title: "🌸 ᴊᴏɢᴏs ᴇ ʙʀɪɴᴄᴀᴅᴇɪʀᴀs ᴇᴍ ɢʀᴜᴘᴏ.",
-id: prefix + "menubrincadeira"
-},
-
-{
-header: "𖥔⃟💮 ᴄʀɪᴀᴅᴏʀ 𖥔⃟💮",
-title: "🌸 ɪɴꜰᴏʀᴍᴀᴄᴏᴇs ᴅᴏ ᴄʀɪᴀᴅᴏʀ.",
-id: prefix + "criador"
-},
-{
-header: "𖥔⃟🪷 ᴅᴏɴᴏ 𖥔⃟🪷",
-title: "🌸 ɪɴꜰᴏʀᴍᴀᴄᴏᴇs ᴅᴏ ᴅᴏɴᴏ.",
-id: prefix + "dono"
-},
-{
-header: "𖥔⃟💮 ᴅᴏɴᴏs 𖥔⃟💮",
-title: "🌸 ʟɪsᴛᴀ ᴅᴇ ᴅᴏɴᴏs ᴅᴏ ʙᴏᴛ.",
-id: prefix + "donos"
-},
-{
-header: "𖥔⃟🪷 ᴘɪɴɢ 𖥔⃟🪷",
-title: "🌸 ᴠᴇʀɪꜰɪᴄᴀʀ ʟᴀᴛᴇ̂ɴᴄɪᴀ ᴅᴏ ʙᴏᴛ.",
-id: prefix + "ping"
-},
-{
-header: "𖥔⃟💮 ᴘᴇʀꜰɪʟ 𖥔⃟💮",
-title: "🌸 ᴠᴇʀ sᴇᴜ ᴘᴇʀꜰɪʟ ᴇ sᴛᴀᴛᴜs.",
-id: prefix + "perfil"
-}
-
-]
-}
-]
-};
-const botoes = [
-{
-name: "single_select",
-buttonParamsJson: JSON.stringify(listaMenus)
-},
-{
-name: "cta_url",
-buttonParamsJson: JSON.stringify({
-display_text: "𖥔⃟🪷 ᴄᴀɴᴀʟ ᴅᴏ ᴄʀɪᴀᴅᴏʀ 𖥔⃟🪷",
-url: channel,
-merchant_url: channel
-})
-}
-];
-
-const textok = `╭┈ׅׄ┉━━═✯𑁍✯═━━┉ֹׅ┈╮
-╠╾═✯═╼┈𑁁┈𑁍┈𑁁┈╾═✯═╼╮
-┃֪࣪𝆺𝅥🪷 𝐍𝐎𝐌𝐄 ➥ ${NomeDoBot}
-┃֪࣪𝆺𝅥💮 𝐔𝐒𝐄𝐑 ➥ ${pushname}
-┃֪࣪𝆺𝅥🪷 𝐏𝐑𝐄𝐅𝐈𝐗𝐎 ➥ [ ${prefix} ]
-┃֪࣪𝆺𝅥💮 𝐇𝐎𝐑𝐀 ➥ ${hora}
-┃֪࣪𝆺𝅥🪷 𝐃𝐀𝐓𝐀 ➥ ${date}
-╠╾═✯═╼┈𑁁┈𑁍┈𑁁┈╾═✯═╼╯
-╰┈ׅׄ┉━━═✯𑁍✯═━━┉ֹׅ┈╯
-
-> ᴇsᴄᴏʟʜᴀ ᴀ ᴏᴘçãᴏ ᴀʙᴀɪxᴏ`;
-
-let media = {};
-
-if (fs.existsSync("./DADOS_SYSTEM/INFO_SYSTEM/LOGOS/fotomenu.mp4")) {
-media.video = {
-url: "./DADOS_SYSTEM/INFO_SYSTEM/LOGOS/fotomenu.mp4",
-gifPlayback: true,
-mimetype: "video/mp4",
-seconds: 8
-};
-} else {
-media.image = {
-url: "./DADOS_SYSTEM/INFO_SYSTEM/LOGOS/fotomenu.png"
-};
-}
-
-await sendInteractiveMessage(SystemDark, from, {
-
-text: "ᴍᴇɴᴜ ɪɴᴛᴇʀᴀᴛɪᴠᴏ",
-
-carousel: [
-{
-...media,
-
-text: textok,
-
-footer: `𝑪𝒓𝒆𝒂𝒕𝒆𝒅 𝑩𝒚: © ⏤͟͟͞͞${ownerName}`,
-
-buttons: botoes
-}
-],
-
-interactiveButtons: [
-{
-name: "quick_reply",
-buttonParamsJson: JSON.stringify({
-display_text: " ",
-id: `${prefix}menu`
-})
-}
-]
-
-}, {
-quoted: selo,
-mentions: [sender]
+case 'menu':
+case 'ajuda':
+case 'help':
+case 'comandos': {
+await sendMenu(from, selo, {
+reaction: "⚡",
+caption: linguagem.menu(prefix, sender, pushname || "Caçador", isVip, isCargo)
 });
-
-} catch (error) {
-console.error("Erro ao executar o comando 'menu':", error);
-await SystemDark.sendMessage(from, { text: mess.error() }, { quoted: selo });
-}
 break;
 }
-// ===== MENUS COM IMAGEM PADRÃO =====
+
+// ===== MENUS ADICIONAIS =====
 
 case 'menucoins':
 await sendMenu(from, selo, {
