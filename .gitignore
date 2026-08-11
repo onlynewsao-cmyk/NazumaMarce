@@ -15,3 +15,4 @@ backups/
 # Variáveis locais
 .env
 .DS_Store
+ARQUIVES/rpg/rpg_data.json
