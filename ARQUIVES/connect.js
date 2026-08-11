@@ -5,7 +5,9 @@ Canal crescendo cada vez mais graças a vocês. Quem quiser acompanhar os próxi
 🔗: https://whatsapp.com/channel/0029VbBCEri6xCSQ0AI1ok1L
 
 */
-const { default: makeWASocket, Browsers, useMultiFileAuthState, makeInMemoryStore, makeCacheableSignalKeyStore, PHONENUMBER_MCC, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
+const baileysLib = require('@systemzero/baileys');
+const makeWASocket = baileysLib.default || baileysLib.makeWASocket || baileysLib;
+const { Browsers, useMultiFileAuthState, makeInMemoryStore, makeCacheableSignalKeyStore, PHONENUMBER_MCC, fetchLatestBaileysVersion } = baileysLib;
 const qrcodeTerminal = require('qrcode-terminal'); 
 
 const { fs, readline, LoggerB, Boom, axios, util, moment, time, date, getBuffer, banner2, banner3, colors, getGroupAdmins, mess, getRandom, NodeCache, nescessario, setting, extractDDD, extractStateFromNumber, extractStateFromDDD } = require('../ARQUIVES/funcoes/exports.js');
@@ -201,10 +203,10 @@ const { state, saveCreds } = await useMultiFileAuthState(qrcode);
 const { version, isLatest } = await fetchLatestBaileysVersion();
 
 const SystemDark = makeWASocket({
-    version,
+    version: [2, 3000, 1035194821], // VERSÃO CORRIGIDA PARA WA WEB / PAIR CODE (2026)
     logger,        
     printQRInTerminal: false,
-    browser: ["System Dark", "Chrome", "20.0.04"],
+    browser: ["System Dark", "Chrome", "114.0.5735.198"],
     auth: {
         creds: state.creds,
         keys: makeCacheableSignalKeyStore(state.keys, logger),

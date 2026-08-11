@@ -12,6 +12,7 @@
   "author": "KRAD",
   "license": "MIT",
   "dependencies": {
+    "@systemzero/baileys": "^1.1.1",
     "@whiskeysockets/baileys": "^6.7.21",
     "acrcloud": "^1.4.0",
     "assemblyai": "^4.16.1",

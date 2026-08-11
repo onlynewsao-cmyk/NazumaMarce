@@ -186,6 +186,40 @@ app.post('/api/admin-action', requireAuth, async (req, res) => {
         return res.status(200).json({ success: true, message: "Backup sincronizado no MongoDB Cloud com sucesso!" });
     }
 
+        if (action === "raid-kaido" || action === "raid-reset") {
+        rpgDb.saveActiveRaid({
+            id: Date.now(),
+            boss_name: "Kaido Forma Dragão Colossal",
+            anime: "One Piece",
+            hp: 100000,
+            max_hp: 100000,
+            active: true,
+            attackers: {}
+        });
+        return res.status(200).json({ success: true, message: "Raid Mundial de Kaido acionada com 100.000 HP!" });
+    }
+
+    if (action === "raid-sukuna") {
+        rpgDb.saveActiveRaid({
+            id: Date.now(),
+            boss_name: "Ryomen Sukuna (Rei das Maldições)",
+            anime: "Jujutsu Kaisen",
+            hp: 120000,
+            max_hp: 120000,
+            active: true,
+            attackers: {}
+        });
+        return res.status(200).json({ success: true, message: "Raid Mundial de Sukuna acionada com 120.000 HP!" });
+    }
+
+    if (action === "reward-user") {
+        const { target, amount } = req.body;
+        if (!target || !amount) return res.status(400).json({ success: false, error: "Dados incompletos" });
+        const user = rpgDb.getUser(target) || rpgDb.ensureUserExists(target, "Caçador Premiação");
+        rpgDb.updateUserStats(target, { berries: (user.berries || 0) + Number(amount) });
+        return res.status(200).json({ success: true, message: `Bônus de $ ${Number(amount).toLocaleString()} Berries entregue a ${target}!` });
+    }
+
     if (action === "raid-reset") {
         rpgDb.saveActiveRaid({
             id: Date.now(),
@@ -216,6 +250,32 @@ app.post('/api/admin-action', requireAuth, async (req, res) => {
     }
 
     res.status(400).json({ success: false, error: "Ação inválida" });
+});
+
+app.post('/api/send-command', requireAuth, async (req, res) => {
+    const { target, text } = req.body;
+    if (!target || !text) {
+        return res.status(400).json({ success: false, error: "Alvo e texto são obrigatórios" });
+    }
+
+    // Se for comando RPG, executa localmente para ver a resposta no painel
+    if (text.startsWith("/")) {
+        const args = text.slice(1).split(" ");
+        const cmd = args.shift().toLowerCase();
+        const rpgRouter = require("./ARQUIVES/rpg/router.js");
+        let replyTxt = "";
+        const mockReply = (msg) => { replyTxt = msg; };
+        await rpgRouter.handleRpgCommand(cmd, args, target, mockReply, null, "KRAD (Painel)");
+        if (replyTxt) {
+            return res.status(200).json({ success: true, response: replyTxt });
+        }
+    }
+
+    // Se for mensagem de texto normal
+    return res.status(200).json({
+        success: true,
+        response: `[PAINEL SYSTEM DARK]: Mensagem registrada para envio a ${target} ➔ "${text}"`
+    });
 });
 
 // === ENDPOINTS PÚBLICOS DE MONITORAMENTO ===

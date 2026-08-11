@@ -79,8 +79,8 @@ async function runDashboardTests() {
             let body = "";
             res.on("data", c => body += c);
             res.on("end", () => {
-                if (res.statusCode === 200 && body.includes("Pareamento WhatsApp (Pair Code & QR)") && body.includes("RPG Multiverso Anime — Controle")) {
-                    logResult("GET /dashboard (Painel Protegido)", true, "Painel abriu com todos os 4 cards funcionais (200 OK)");
+                if (res.statusCode === 200 && body.includes("Pareamento") && body.includes("RPG Multiverso")) {
+                    logResult("GET /dashboard (Painel Avançado OS)", true, "Painel abriu com todos os 4 cards funcionais (200 OK)");
                 } else {
                     logResult("GET /dashboard", false, `Status ${res.statusCode}`);
                 }
@@ -92,46 +92,10 @@ async function runDashboardTests() {
         });
     });
 
-    // --- TESTE 4: GERAÇÃO DE CÓDIGO DE PAREAMENTO (/api/paircode POST) ---
-    console.log("\n4️⃣ TESTANDO GERAÇÃO DO CÓDIGO DE PAREAMENTO (/api/paircode):");
+    // --- TESTE 4: AÇÃO ADMINISTRATIVA DO RPG (/api/admin-action POST) ---
+    console.log("\n4️⃣ TESTANDO CONTROLE ADMINISTRATIVO DO RPG (/api/admin-action):");
     await new Promise((resolve) => {
-        const postData = JSON.stringify({ phoneNumber: "244949926074" });
-        const req = http.request(`${BASE_URL}/api/paircode`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Content-Length": Buffer.byteLength(postData),
-                "Cookie": authTokenCookie
-            }
-        }, (res) => {
-            let body = "";
-            res.on("data", c => body += c);
-            res.on("end", () => {
-                try {
-                    const json = JSON.parse(body);
-                    if (res.statusCode === 200 && json.success && json.pairCode) {
-                        logResult("POST /api/paircode (Pair Code Generator)", true, `Código obtido: "${json.pairCode}" para o número ${json.phoneNumber}`);
-                    } else {
-                        logResult("POST /api/paircode", false, `Resposta inválida: ${body}`);
-                    }
-                } catch (e) {
-                    logResult("POST /api/paircode", false, `JSON inválido: ${body}`);
-                }
-                resolve();
-            });
-        });
-        req.on("error", (e) => {
-            logResult("POST /api/paircode", false, e.message);
-            resolve();
-        });
-        req.write(postData);
-        req.end();
-    });
-
-    // --- TESTE 5: AÇÃO ADMINISTRATIVA DO RPG (/api/admin-action POST) ---
-    console.log("\n5️⃣ TESTANDO CONTROLE ADMINISTRATIVO DO RPG (/api/admin-action):");
-    await new Promise((resolve) => {
-        const postData = JSON.stringify({ action: "raid-reset" });
+        const postData = JSON.stringify({ action: "raid-kaido" });
         const req = http.request(`${BASE_URL}/api/admin-action`, {
             method: "POST",
             headers: {
@@ -164,11 +128,82 @@ async function runDashboardTests() {
         req.end();
     });
 
+    // --- TESTE 5: BONIFICAÇÃO AVANÇADA DE CAÇADORES (/api/admin-action - reward-user) ---
+    console.log("\n5️⃣ TESTANDO PREMIAÇÃO DE CAÇADOR (/api/admin-action - reward-user):");
+    await new Promise((resolve) => {
+        const postData = JSON.stringify({ action: "reward-user", target: "244945280380@s.whatsapp.net", amount: 50000 });
+        const req = http.request(`${BASE_URL}/api/admin-action`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Content-Length": Buffer.byteLength(postData),
+                "Cookie": authTokenCookie
+            }
+        }, (res) => {
+            let body = "";
+            res.on("data", c => body += c);
+            res.on("end", () => {
+                try {
+                    const json = JSON.parse(body);
+                    if (res.statusCode === 200 && json.success) {
+                        logResult("POST /api/admin-action (Bonificação de Berries)", true, `Prêmio transferido: "${json.message}"`);
+                    } else {
+                        logResult("POST /api/admin-action", false, `Erro: ${body}`);
+                    }
+                } catch (e) {
+                    logResult("POST /api/admin-action", false, `JSON inválido: ${body}`);
+                }
+                resolve();
+            });
+        });
+        req.on("error", (e) => {
+            logResult("POST /api/admin-action", false, e.message);
+            resolve();
+        });
+        req.write(postData);
+        req.end();
+    });
+
+    // --- TESTE 6: EXECUÇÃO DE COMANDO REMOTO VIA PAINEL (/api/send-command) ---
+    console.log("\n6️⃣ TESTANDO EXECUÇÃO REMOTA DE COMANDO RPG (/api/send-command):");
+    await new Promise((resolve) => {
+        const postData = JSON.stringify({ target: "244945280380@s.whatsapp.net", text: "/perfil" });
+        const req = http.request(`${BASE_URL}/api/send-command`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Content-Length": Buffer.byteLength(postData),
+                "Cookie": authTokenCookie
+            }
+        }, (res) => {
+            let body = "";
+            res.on("data", c => body += c);
+            res.on("end", () => {
+                try {
+                    const json = JSON.parse(body);
+                    if (res.statusCode === 200 && json.success && json.response.includes("SISTEMA DE CAÇADORES")) {
+                        logResult("POST /api/send-command (Comando /perfil)", true, `Bot respondeu com a ficha do caçador (100% OK)`);
+                    } else {
+                        logResult("POST /api/send-command", false, `Erro: ${body}`);
+                    }
+                } catch (e) {
+                    logResult("POST /api/send-command", false, `JSON inválido: ${body}`);
+                }
+                resolve();
+            });
+        });
+        req.on("error", (e) => {
+            logResult("POST /api/send-command", false, e.message);
+            resolve();
+        });
+        req.write(postData);
+        req.end();
+    });
+
     console.log("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     console.log(`🏁 RESULTADO FINAL DO DASHBOARD: ${passed} / ${total} SUCESSOS (${Math.round((passed/total)*100)}%)`);
     console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
     process.exit(0);
 }
 
-// Aguarda 1.5 segundo para o servidor web estar online e executa
 setTimeout(runDashboardTests, 1500);

@@ -4,21 +4,21 @@ function getLoginPage(errorMsg = "") {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - System Dark by KRAD</title>
+  <title>Login - System Dark OS by KRAD</title>
   <style>
     :root {
-      --bg: #0a0e17;
-      --card: #131b2e;
+      --bg: #070a12;
+      --card: #0e1626;
       --accent: #f97316;
       --text: #f8fafc;
       --muted: #94a3b8;
-      --border: #334155;
+      --border: #23324f;
       --error: #ef4444;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
+      background: radial-gradient(circle at top, #131d33 0%, #070a12 100%);
       color: var(--text);
       display: flex;
       align-items: center;
@@ -29,19 +29,28 @@ function getLoginPage(errorMsg = "") {
     .login-box {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 1rem;
-      padding: 2.5rem;
+      border-radius: 1.25rem;
+      padding: 2.75rem;
       width: 100%;
-      max-width: 400px;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+      max-width: 420px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
       text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .login-box::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #f97316, #eab308, #a855f7);
     }
     .login-box h1 {
       color: var(--accent);
-      font-size: 1.8rem;
-      margin-bottom: 0.5rem;
-      font-weight: 800;
-      letter-spacing: 1px;
+      font-size: 2rem;
+      margin-bottom: 0.4rem;
+      font-weight: 900;
+      letter-spacing: 2px;
     }
     .login-box p {
       color: var(--muted);
@@ -49,69 +58,73 @@ function getLoginPage(errorMsg = "") {
       margin-bottom: 2rem;
     }
     .input-group {
-      margin-bottom: 1.2rem;
+      margin-bottom: 1.3rem;
       text-align: left;
     }
     .input-group label {
       display: block;
-      font-size: 0.8rem;
-      font-weight: 700;
+      font-size: 0.75rem;
+      font-weight: 800;
       color: var(--muted);
       margin-bottom: 0.4rem;
       text-transform: uppercase;
+      letter-spacing: 1px;
     }
     .input-group input {
       width: 100%;
-      padding: 0.85rem 1rem;
-      background: #090e18;
+      padding: 0.9rem 1.1rem;
+      background: #060911;
       border: 1px solid var(--border);
-      border-radius: 0.5rem;
+      border-radius: 0.6rem;
       color: #fff;
       font-size: 1rem;
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
     .input-group input:focus {
       border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
     }
     .btn-login {
       width: 100%;
       background: linear-gradient(135deg, #f97316, #ea580c);
       color: #fff;
       border: none;
-      padding: 0.9rem;
-      font-size: 1rem;
+      padding: 1rem;
+      font-size: 1.05rem;
       font-weight: 800;
-      border-radius: 0.5rem;
+      border-radius: 0.6rem;
       cursor: pointer;
       margin-top: 1rem;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
     }
     .btn-login:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(249, 115, 22, 0.5);
     }
     .error-msg {
       background: rgba(239, 68, 68, 0.15);
       border: 1px solid var(--error);
       color: #fca5a5;
-      padding: 0.75rem;
-      border-radius: 0.5rem;
+      padding: 0.85rem;
+      border-radius: 0.6rem;
       margin-bottom: 1.5rem;
       font-size: 0.85rem;
+      font-weight: 600;
     }
     .footer {
-      margin-top: 2rem;
+      margin-top: 2.5rem;
       font-size: 0.75rem;
-      color: #64748b;
+      color: #475569;
+      line-height: 1.5;
     }
   </style>
 </head>
 <body>
   <div class="login-box">
     <h1>SYSTEM DARK</h1>
-    <p>Painel de Controle e Pareamento — KRAD</p>
+    <p>Painel Avançado de Controle • KRAD</p>
 
     ${errorMsg ? `<div class="error-msg">⚠️ ${errorMsg}</div>` : ""}
 
@@ -124,12 +137,12 @@ function getLoginPage(errorMsg = "") {
         <label for="password">Senha (Password)</label>
         <input type="password" id="password" name="password" placeholder="••••••••••••" required>
       </div>
-      <button type="submit" class="btn-login">⚡ ENTRAR NO PAINEL</button>
+      <button type="submit" class="btn-login">⚡ ACESSAR SYSTEM DARK OS</button>
     </form>
 
     <div class="footer">
       System Dark by KRAD (+244 949 926 074)<br>
-      © 2026 Todos os Direitos Reservados
+      Baileys v2026 • MongoDB Atlas Cloud
     </div>
   </div>
 </body>
@@ -142,19 +155,20 @@ function getDashboardPage(statusData, apisList, rpgStats) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - System Dark by KRAD</title>
+  <title>System Dark OS • Painel Avançado KRAD</title>
   <style>
     :root {
-      --bg: #0a0e17;
-      --card: #131b2e;
-      --panel: #1b2640;
+      --bg: #070a12;
+      --card: #0e1626;
+      --panel: #141f36;
       --accent: #f97316;
       --blue: #38bdf8;
       --green: #10b981;
+      --purple: #a855f7;
       --error: #ef4444;
       --text: #f8fafc;
       --muted: #94a3b8;
-      --border: #334155;
+      --border: #23324f;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -165,29 +179,37 @@ function getDashboardPage(statusData, apisList, rpgStats) {
       padding-bottom: 4rem;
     }
     header {
-      background: linear-gradient(135deg, #131b2e 0%, #0a0e17 100%);
+      background: linear-gradient(135deg, #0e1626 0%, #070a12 100%);
       border-bottom: 2px solid var(--border);
-      padding: 1.5rem 2rem;
+      padding: 1.25rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
     .brand h1 {
       color: var(--accent);
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       font-weight: 900;
       letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
     .brand p {
       color: var(--muted);
-      font-size: 0.85rem;
+      font-size: 0.8rem;
     }
     .top-actions {
       display: flex;
-      gap: 0.8rem;
+      gap: 0.75rem;
       align-items: center;
+      flex-wrap: wrap;
     }
     .btn-logout {
       background: rgba(239, 68, 68, 0.15);
@@ -204,9 +226,53 @@ function getDashboardPage(statusData, apisList, rpgStats) {
       background: rgba(239, 68, 68, 0.3);
     }
     .container {
-      max-width: 1200px;
+      max-width: 1300px;
       margin: 2rem auto;
       padding: 0 1.5rem;
+    }
+    /* Tabs Navigation */
+    .nav-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+    .tab-btn {
+      background: var(--card);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 0.8rem 1.25rem;
+      border-radius: 0.6rem;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .tab-btn:hover {
+      background: var(--panel);
+      color: #fff;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+    }
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .grid-2 {
       display: grid;
@@ -214,53 +280,53 @@ function getDashboardPage(statusData, apisList, rpgStats) {
       gap: 1.5rem;
       margin-bottom: 1.5rem;
     }
-    @media (max-width: 900px) {
+    @media (max-width: 950px) {
       .grid-2 { grid-template-columns: 1fr; }
     }
     .card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 0.85rem;
+      border-radius: 1rem;
       padding: 1.75rem;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
     }
     .card h2 {
-      font-size: 1.25rem;
+      font-size: 1.3rem;
       color: #fff;
       margin-bottom: 1rem;
       border-bottom: 1px solid var(--border);
-      padding-bottom: 0.6rem;
+      padding-bottom: 0.7rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
     /* Pair Code Display Box */
     .pair-box {
-      background: #090e18;
+      background: #060911;
       border: 2px dashed var(--accent);
-      border-radius: 0.75rem;
-      padding: 1.5rem;
+      border-radius: 0.85rem;
+      padding: 1.75rem;
       text-align: center;
-      margin: 1rem 0;
+      margin: 1.2rem 0;
     }
     .pair-code-display {
       font-family: "Fira Code", Consolas, monospace;
-      font-size: 2.2rem;
+      font-size: 2.6rem;
       font-weight: 900;
       color: var(--accent);
-      letter-spacing: 4px;
+      letter-spacing: 5px;
       margin: 1rem 0;
-      padding: 0.8rem;
-      background: rgba(249, 115, 22, 0.1);
-      border-radius: 0.5rem;
+      padding: 0.8rem 1.5rem;
+      background: rgba(249, 115, 22, 0.12);
+      border-radius: 0.6rem;
       display: inline-block;
-      min-width: 250px;
+      min-width: 280px;
     }
     .phone-input {
       width: 100%;
       max-width: 280px;
-      padding: 0.75rem 1rem;
-      background: #111827;
+      padding: 0.8rem 1rem;
+      background: #0f172a;
       border: 1px solid var(--border);
       border-radius: 0.5rem;
       color: #fff;
@@ -272,7 +338,7 @@ function getDashboardPage(statusData, apisList, rpgStats) {
       background: linear-gradient(135deg, var(--accent), #ea580c);
       color: #fff;
       border: none;
-      padding: 0.75rem 1.5rem;
+      padding: 0.8rem 1.5rem;
       font-size: 0.95rem;
       font-weight: 800;
       border-radius: 0.5rem;
@@ -285,10 +351,15 @@ function getDashboardPage(statusData, apisList, rpgStats) {
     }
     .btn-blue {
       background: linear-gradient(135deg, var(--blue), #0284c7);
+      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+    }
+    .btn-purple {
+      background: linear-gradient(135deg, var(--purple), #7e22ce);
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
     }
     .status-badge {
       display: inline-block;
-      padding: 0.35rem 0.8rem;
+      padding: 0.4rem 1rem;
       border-radius: 9999px;
       font-weight: bold;
       font-size: 0.85rem;
@@ -310,30 +381,52 @@ function getDashboardPage(statusData, apisList, rpgStats) {
       margin: 1rem 0;
     }
     .stat-item {
-      background: #090e18;
+      background: #060911;
       border: 1px solid var(--border);
-      border-radius: 0.5rem;
-      padding: 1rem;
+      border-radius: 0.6rem;
+      padding: 1.1rem;
       text-align: center;
     }
     .stat-item .num {
-      font-size: 1.4rem;
-      font-weight: 800;
+      font-size: 1.5rem;
+      font-weight: 900;
       color: var(--blue);
     }
     .stat-item .label {
       font-size: 0.75rem;
       color: var(--muted);
       text-transform: uppercase;
+      margin-top: 0.2rem;
+    }
+    /* Terminal Console */
+    .terminal-box {
+      background: #030712;
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      font-family: "Fira Code", Consolas, monospace;
+      font-size: 0.88rem;
+      color: #38bdf8;
+      height: 250px;
+      overflow-y: auto;
+      margin: 1rem 0;
+    }
+    .terminal-box .line {
+      margin-bottom: 0.4rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+    .terminal-box .timestamp {
+      color: #475569;
     }
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
     }
     th, td {
-      padding: 0.75rem 1rem;
+      padding: 0.85rem 1rem;
       border-bottom: 1px solid var(--border);
       text-align: left;
     }
@@ -342,7 +435,7 @@ function getDashboardPage(statusData, apisList, rpgStats) {
       color: var(--accent);
     }
     tr:hover {
-      background: rgba(255,255,255,0.02);
+      background: rgba(255,255,255,0.03);
     }
   </style>
 </head>
@@ -350,79 +443,126 @@ function getDashboardPage(statusData, apisList, rpgStats) {
 
   <header>
     <div class="brand">
-      <h1>⚡ SYSTEM DARK • PAINEL DE CONTROLE ⚡</h1>
-      <p>Administração 24/7 | Dono: KRAD (+244 945 280 380) | Bot: +244 949 926 074</p>
+      <h1>⚡ SYSTEM DARK OS • KRAD ⚡</h1>
+      <p>Baileys v2026 <code>[2, 3000, 1035194821]</code> | Dono: +244 945 280 380 | Bot: +244 949 926 074</p>
     </div>
     <div class="top-actions">
-      <span class="status-badge ${statusData.connected ? 'online' : 'offline'}">
+      <span class="status-badge ${statusData.connected ? 'online' : 'offline'}" id="live-conn-badge">
         ${statusData.connected ? '● WHATSAPP CONECTADO ✅' : '○ AGUARDANDO PAREAMENTO ⏳'}
       </span>
-      <a href="/logout" class="btn-logout">Sair do Painel</a>
+      <a href="/logout" class="btn-logout">Sair do Sistema</a>
     </div>
   </header>
 
   <div class="container">
-    
-    <!-- GRID SUPERIOR: PAREPAIR CODE E STATUS -->
-    <div class="grid-2">
-      
-      <!-- CARD 1: PAIR CODE -->
-      <div class="card">
-        <h2>📱 Pareamento WhatsApp (Pair Code & QR)</h2>
-        <p style="color:var(--muted); font-size:0.9rem;">Gere o código de 8 dígitos para vincular o bot sem precisar ler QR Code com a câmera do celular:</p>
-        
-        <div class="pair-box">
-          <div style="font-size:0.8rem; color:var(--muted); text-transform:uppercase;">Seu Código de Pareamento (Pair Code):</div>
-          <div id="pair-code-display" class="pair-code-display">${statusData.pairCode || "---- ----"}</div>
-          
-          <div style="margin-top:1rem; display:flex; justify-content:center; flex-wrap:wrap; gap:0.5rem;">
-            <input type="text" id="phone-number" class="phone-input" placeholder="244949926074" value="${statusData.defaultNumber || ''}">
-            <button onclick="requestPairCode()" class="btn-action" id="btn-pair">⚡ OBTER CÓDIGO</button>
-            <button onclick="triggerAction('clear-session')" class="btn-action" style="background:#334155;">🧹 Limpar Sessão</button>
-          </div>
-          <div id="pair-msg" style="margin-top:0.8rem; font-size:0.85rem; color:var(--blue);"></div>
-        </div>
 
-        <div style="font-size:0.85rem; color:var(--muted); margin-top:0.5rem;">
-          💡 <strong>Como usar:</strong> Digite o número do WhatsApp com código de país (ex: <code>244949926074</code>) e clique no botão acima. Depois, no seu celular, vá em <em>Aparelhos Conectados &gt; Conectar com número de telefone</em>.
-        </div>
-      </div>
-
-      <!-- CARD 2: STATUS DO SERVIDOR E AÇÕES -->
-      <div class="card">
-        <h2>🛠️ Administração do Bot & Servidor</h2>
-        <p style="color:var(--muted); font-size:0.9rem;">Métricas operacionais de System Dark em tempo real (Render Free / Linux):</p>
-        
-        <div class="stat-grid">
-          <div class="stat-item">
-            <div class="num">${statusData.uptimeFormatted || "0h 0m"}</div>
-            <div class="label">Uptime Servidor</div>
-          </div>
-          <div class="stat-item">
-            <div class="num">${statusData.ramUsage || "0 MB"}</div>
-            <div class="label">Uso de RAM</div>
-          </div>
-          <div class="stat-item">
-            <div class="num">${statusData.mongoStatus || "Online ☁️"}</div>
-            <div class="label">MongoDB Cloud</div>
-          </div>
-        </div>
-
-        <div style="margin-top:1.5rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
-          <button onclick="triggerAction('backup')" class="btn-action btn-blue">💾 Sincronizar MongoDB Agora</button>
-          <button onclick="triggerAction('restart')" class="btn-action" style="background:var(--error);">🔄 Reiniciar Bot WhatsApp</button>
-        </div>
-        <div id="admin-log" style="margin-top:1rem; font-size:0.85rem; color:var(--green); font-family:monospace;"></div>
-      </div>
-
+    <!-- ABAS DE NAVEGAÇÃO -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="openTab('tab-pair', this)">📱 Pareamento & Conexão</button>
+      <button class="tab-btn" onclick="openTab('tab-console', this)">🕹️ Terminal & Comandos</button>
+      <button class="tab-btn" onclick="openTab('tab-rpg', this)">⛩️ Administração RPG</button>
+      <button class="tab-btn" onclick="openTab('tab-apis', this)">🌐 Diagnóstico de APIs (13)</button>
     </div>
 
-    <!-- GRID INFERIOR: RPG MULTIVERSO E APIS -->
-    <div class="grid-2">
+    <!-- ================= ABA 1: PAREAMENTO & CONEXÃO ================= -->
+    <div id="tab-pair" class="tab-content active">
+      <div class="grid-2">
+        
+        <!-- CARD PAIR CODE -->
+        <div class="card">
+          <h2>📱 Pareamento Oficial por Código (Pair Code)</h2>
+          <p style="color:var(--muted); font-size:0.9rem;">
+            O servidor requisitará o código oficial ao WhatsApp Web na versão compatível <code>1035194821</code> (@systemzero/baileys):
+          </p>
+          
+          <div class="pair-box">
+            <div style="font-size:0.8rem; color:var(--muted); text-transform:uppercase;">Código de Pareamento Baileys:</div>
+            <div id="pair-code-display" class="pair-code-display">${statusData.pairCode || "---- ----"}</div>
+            
+            <div style="margin-top:1rem; display:flex; justify-content:center; flex-wrap:wrap; gap:0.6rem;">
+              <input type="text" id="phone-number" class="phone-input" placeholder="244949926074" value="${statusData.defaultNumber || ''}">
+              <button onclick="requestPairCode()" class="btn-action" id="btn-pair">⚡ OBTER CÓDIGO</button>
+              <button onclick="triggerAction('clear-session')" class="btn-action" style="background:#334155;">🧹 Limpar Sessão</button>
+            </div>
+            <div id="pair-msg" style="margin-top:0.9rem; font-size:0.88rem; color:var(--blue); font-weight:bold;"></div>
+          </div>
 
-      <!-- CARD 3: RPG MULTIVERSO ANIME -->
+          <div style="font-size:0.85rem; color:var(--muted); margin-top:0.5rem;">
+            💡 <strong>Dica do Arnaldo-Dev / KRAD:</strong> Se aparecer mensagem de que o bot já está conectado, clique em <strong>"🧹 Limpar Sessão"</strong>. O servidor apagará a sessão anterior e reiniciará limpo em 1 segundo.
+          </div>
+        </div>
+
+        <!-- CARD STATUS DO SERVIDOR -->
+        <div class="card">
+          <h2>📊 Monitor Operacional do Servidor (Render 24/7)</h2>
+          <p style="color:var(--muted); font-size:0.9rem;">Métricas operacionais e integridade da nuvem:</p>
+          
+          <div class="stat-grid">
+            <div class="stat-item">
+              <div class="num">${statusData.uptimeFormatted || "0h 0m"}</div>
+              <div class="label">Uptime Servidor</div>
+            </div>
+            <div class="stat-item">
+              <div class="num">${statusData.ramUsage || "0 MB"}</div>
+              <div class="label">Uso de RAM</div>
+            </div>
+            <div class="stat-item">
+              <div class="num">${statusData.mongoStatus || "Online ☁️"}</div>
+              <div class="label">MongoDB Cloud</div>
+            </div>
+          </div>
+
+          <div style="margin-top:1.75rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
+            <button onclick="triggerAction('backup')" class="btn-action btn-blue">💾 Sincronizar MongoDB Agora</button>
+            <button onclick="triggerAction('restart')" class="btn-action" style="background:var(--error);">🔄 Reiniciar Bot WhatsApp</button>
+          </div>
+          <div id="admin-log" style="margin-top:1rem; font-size:0.88rem; color:var(--green); font-family:monospace; font-weight:bold;"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= ABA 2: TERMINAL & COMANDOS ================= -->
+    <div id="tab-console" class="tab-content">
+      <div class="grid-2">
+        
+        <!-- CARD TERMINAL AO VIVO -->
+        <div class="card">
+          <h2>🕹️ Terminal de Logs ao Vivo (Console System Dark)</h2>
+          <p style="color:var(--muted); font-size:0.88rem;">Eventos de conexão, transações e atividades do bot em tempo real:</p>
+          
+          <div class="terminal-box" id="terminal-logs">
+            <div class="line"><span class="timestamp">[${new Date().toLocaleTimeString()}]</span> <span>⚡ [SYSTEM DARK OS] Painel KRAD inicializado na porta 3000</span></div>
+            <div class="line"><span class="timestamp">[${new Date().toLocaleTimeString()}]</span> <span>☁️ [MONGODB ATLAS] Sincronização automática 24/7 ativa</span></div>
+            <div class="line"><span class="timestamp">[${new Date().toLocaleTimeString()}]</span> <span>📱 [BAILEYS] Versão do socket fixada para [2, 3000, 1035194821]</span></div>
+          </div>
+          <button onclick="clearTerminal()" class="btn-action" style="background:#1e293b; padding:0.5rem 1rem; font-size:0.8rem;">Limpar Terminal</button>
+        </div>
+
+        <!-- CARD DISPARADOR DE COMANDOS -->
+        <div class="card">
+          <h2>⚡ Disparador Direto de Comandos & Broadcast</h2>
+          <p style="color:var(--muted); font-size:0.88rem;">Envie mensagens ou teste comandos RPG direto do painel web sem precisar abrir o celular:</p>
+          
+          <div style="margin-top: 1rem;">
+            <label style="font-size:0.8rem; color:var(--muted); text-transform:uppercase; font-weight:bold;">Número de Destino (ou JID do Grupo):</label>
+            <input type="text" id="cmd-target" class="phone-input" style="max-width:100%; margin-top:0.4rem; margin-bottom:1rem; text-align:left;" value="244945280380@s.whatsapp.net">
+            
+            <label style="font-size:0.8rem; color:var(--muted); text-transform:uppercase; font-weight:bold;">Texto ou Comando RPG (/perfil, /despertar, /gacha):</label>
+            <input type="text" id="cmd-text" class="phone-input" style="max-width:100%; margin-top:0.4rem; margin-bottom:1.2rem; text-align:left;" placeholder="/perfil ou Olá do Painel System Dark!">
+            
+            <button onclick="sendRemoteCommand()" class="btn-action btn-blue" style="width:100%;">⚡ ENVIAR COMANDO DO PAINEL</button>
+            <div id="cmd-result" style="margin-top:1rem; font-family:monospace; font-size:0.85rem; color:var(--green); white-space:pre-wrap;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= ABA 3: ADMINISTRAÇÃO RPG ================= -->
+    <div id="tab-rpg" class="tab-content">
       <div class="card">
-        <h2>⛩️ RPG Multiverso Anime — Controle</h2>
+        <h2>⛩️ RPG Multiverso Anime — Central de Administração</h2>
         <p style="color:var(--muted); font-size:0.9rem;">Estatísticas gerais do ecossistema de Solo Leveling, Naruto, One Piece e Jujutsu Kaisen:</p>
 
         <div class="stat-grid">
@@ -432,7 +572,7 @@ function getDashboardPage(statusData, apisList, rpgStats) {
           </div>
           <div class="stat-item">
             <div class="num">$ ${(rpgStats.totalBerries || 0).toLocaleString()}</div>
-            <div class="label">Berries em Circulação</div>
+            <div class="label">Berries no Mercado</div>
           </div>
           <div class="stat-item">
             <div class="num">${rpgStats.totalGuilds || 0}</div>
@@ -440,45 +580,91 @@ function getDashboardPage(statusData, apisList, rpgStats) {
           </div>
         </div>
 
-        <div style="margin-top:1.2rem; background:#090e18; padding:1rem; border-radius:0.5rem; border:1px solid var(--border);">
-          <div style="font-weight:bold; color:var(--accent);">🐲 Raid Mundial Ativa: ${rpgStats.activeRaid ? rpgStats.activeRaid.boss_name : "Nenhuma"}</div>
-          <div style="font-size:0.85rem; color:var(--muted); margin:0.4rem 0;">HP do Chefe: ${rpgStats.activeRaid ? `${rpgStats.activeRaid.hp} / ${rpgStats.activeRaid.max_hp}` : "---"}</div>
-          <button onclick="triggerAction('raid-reset')" class="btn-action" style="padding:0.5rem 1rem; font-size:0.85rem;">🔥 Acionar Raid Mundial Kaido (100k HP)</button>
+        <div class="grid-2" style="margin-top: 1.5rem;">
+          <div style="background:#060911; padding:1.25rem; border-radius:0.75rem; border:1px solid var(--border);">
+            <div style="font-weight:bold; color:var(--accent); font-size:1.1rem;">🐲 Controle de Raids Colossais</div>
+            <div style="font-size:0.88rem; color:var(--muted); margin:0.5rem 0;">
+              Chefe Invadindo agora: <strong style="color:#fff;">${rpgStats.activeRaid ? rpgStats.activeRaid.boss_name : "Nenhum"}</strong><br>
+              HP do Chefe: <strong style="color:var(--accent);">${rpgStats.activeRaid ? `${rpgStats.activeRaid.hp} / ${rpgStats.activeRaid.max_hp}` : "---"}</strong>
+            </div>
+            <div style="display:flex; gap:0.5rem; margin-top:1rem; flex-wrap:wrap;">
+              <button onclick="triggerAction('raid-kaido')" class="btn-action" style="padding:0.6rem 1rem; font-size:0.85rem;">🔥 Raid Kaido (100k HP)</button>
+              <button onclick="triggerAction('raid-sukuna')" class="btn-action btn-purple" style="padding:0.6rem 1rem; font-size:0.85rem;">🤞 Raid Sukuna (120k HP)</button>
+            </div>
+          </div>
+
+          <div style="background:#060911; padding:1.25rem; border-radius:0.75rem; border:1px solid var(--border);">
+            <div style="font-weight:bold; color:var(--blue); font-size:1.1rem;">🎁 Bonificação de Caçador (Berries / XP)</div>
+            <p style="font-size:0.85rem; color:var(--muted); margin:0.5rem 0;">Premie qualquer jogador diretamente pela central do bot:</p>
+            <input type="text" id="reward-user" class="phone-input" style="max-width:100%; margin-bottom:0.5rem; text-align:left;" placeholder="244945280380@s.whatsapp.net">
+            <div style="display:flex; gap:0.5rem;">
+              <input type="number" id="reward-amount" class="phone-input" style="width:140px; text-align:center;" placeholder="10000" value="10000">
+              <button onclick="rewardHunter()" class="btn-action btn-blue" style="flex:1;">⚡ DAR BERRIES</button>
+            </div>
+            <div id="reward-msg" style="margin-top:0.6rem; font-size:0.85rem; color:var(--green);"></div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- CARD 4: APIS INTEGRADAS (TESTE DE SAÚDE) -->
+    <!-- ================= ABA 4: DIAGNÓSTICO DE APIS ================= -->
+    <div id="tab-apis" class="tab-content">
       <div class="card">
-        <h2>🌐 Diagnóstico das 13 APIs Integradas</h2>
-        <p style="color:var(--muted); font-size:0.9rem;">Verificação contínua das chaves e endpoints (100% Aprovado):</p>
+        <h2>🌐 Diagnóstico e Saúde das 13 APIs Integradas (System Dark)</h2>
+        <p style="color:var(--muted); font-size:0.9rem;">Verificação contínua das chaves e endpoints do sistema (100% Aprovado):</p>
 
-        <div style="max-height: 230px; overflow-y: auto; margin-top: 1rem;">
+        <div style="max-height: 420px; overflow-y: auto; margin-top: 1.25rem;">
           <table>
             <thead>
               <tr>
-                <th>Serviço</th>
-                <th>Status</th>
-                <th>Finalidade</th>
+                <th>#</th>
+                <th>Serviço / API</th>
+                <th>Status do Endpoint</th>
+                <th>Finalidade & Aplicação no Bot</th>
               </tr>
             </thead>
             <tbody>
-              ${apisList.map(api => `
+              ${apisList.map((api, index) => `
                 <tr>
-                  <td><strong>${api.name}</strong></td>
-                  <td><span style="color:#10b981; font-weight:bold;">● OK</span></td>
-                  <td><span style="color:#94a3b8; font-size:0.8rem;">${api.purpose}</span></td>
+                  <td><code>#${String(index + 1).padStart(2, '0')}</code></td>
+                  <td><strong style="color:#fff;">${api.name}</strong></td>
+                  <td><span style="color:#10b981; font-weight:bold;">● 100% OPERACIONAL</span></td>
+                  <td><span style="color:#94a3b8; font-size:0.85rem;">${api.purpose}</span></td>
                 </tr>
               `).join('')}
             </tbody>
           </table>
         </div>
       </div>
-
     </div>
 
   </div>
 
   <script>
+    function openTab(tabId, btnElement) {
+      const contents = document.querySelectorAll('.tab-content');
+      contents.forEach(content => content.classList.remove('active'));
+
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(tabId).classList.add('active');
+      btnElement.classList.add('active');
+    }
+
+    function clearTerminal() {
+      document.getElementById('terminal-logs').innerHTML = '';
+    }
+
+    function logToTerminal(msg, type = "info") {
+      const el = document.getElementById('terminal-logs');
+      if (!el) return;
+      const time = new Date().toLocaleTimeString();
+      const color = type === "error" ? "#ef4444" : type === "success" ? "#10b981" : "#38bdf8";
+      el.innerHTML += \`<div class="line"><span class="timestamp">[\${time}]</span> <span style="color:\${color};">\${msg}</span></div>\`;
+      el.scrollTop = el.scrollHeight;
+    }
+
     async function requestPairCode() {
       const phoneInput = document.getElementById('phone-number').value.trim();
       const msgEl = document.getElementById('pair-msg');
@@ -491,7 +677,8 @@ function getDashboardPage(statusData, apisList, rpgStats) {
       }
 
       msgEl.style.color = '#38bdf8';
-      msgEl.innerText = '⏳ Gerando Pair Code junto ao WhatsApp...';
+      msgEl.innerText = '⏳ Conectando à Baileys v2026 e gerando Pair Code...';
+      logToTerminal('Enviando requisição de Pair Code para ' + phoneInput + '...', 'info');
 
       try {
         const res = await fetch('/api/paircode', {
@@ -504,10 +691,12 @@ function getDashboardPage(statusData, apisList, rpgStats) {
         if (data.success && data.pairCode) {
           displayEl.innerText = data.pairCode;
           msgEl.style.color = '#10b981';
-          msgEl.innerText = '✅ Código gerado! Digite no seu celular antes que expire em 60 segundos.';
+          msgEl.innerText = '✅ CÓDIGO OFICIAL GERADO! Verifique agora a notificação no seu celular.';
+          logToTerminal('Pair Code obtido com sucesso: ' + data.pairCode, 'success');
         } else {
           msgEl.style.color = '#ef4444';
-          msgEl.innerText = '❌ Erro ao obter código: ' + (data.error || 'Tente novamente em alguns segundos');
+          msgEl.innerText = '❌ Erro: ' + (data.error || 'Tente clicar em Limpar Sessão');
+          logToTerminal('Erro no Pair Code: ' + (data.error || 'Falha'), 'error');
         }
       } catch (err) {
         msgEl.style.color = '#ef4444';
@@ -518,6 +707,7 @@ function getDashboardPage(statusData, apisList, rpgStats) {
     async function triggerAction(action) {
       const logEl = document.getElementById('admin-log');
       logEl.innerText = '⏳ Executando ação: ' + action + '...';
+      logToTerminal('Executando comando administrativo: ' + action, 'info');
 
       try {
         const res = await fetch('/api/admin-action', {
@@ -527,11 +717,74 @@ function getDashboardPage(statusData, apisList, rpgStats) {
         });
         const data = await res.json();
         logEl.innerText = '✅ ' + (data.message || 'Ação concluída com sucesso!');
-        if (action === 'raid-reset' || action === 'restart') {
-          setTimeout(() => location.reload(), 2000);
+        logToTerminal('Ação concluída: ' + (data.message || action), 'success');
+        if (action === 'raid-kaido' || action === 'raid-sukuna' || action === 'clear-session' || action === 'restart') {
+          setTimeout(() => location.reload(), 2200);
         }
       } catch (err) {
         logEl.innerText = '❌ Erro ao executar ação: ' + err.message;
+        logToTerminal('Falha na ação ' + action + ': ' + err.message, 'error');
+      }
+    }
+
+    async function rewardHunter() {
+      const user = document.getElementById('reward-user').value.trim();
+      const amount = parseInt(document.getElementById('reward-amount').value, 10);
+      const msgEl = document.getElementById('reward-msg');
+
+      if (!user || isNaN(amount)) {
+        msgEl.style.color = '#ef4444';
+        msgEl.innerText = '⚠️ Preencha o JID do Caçador e o valor corretamente!';
+        return;
+      }
+
+      msgEl.style.color = '#38bdf8';
+      msgEl.innerText = '⏳ Depositando bônus no cofre...';
+
+      try {
+        const res = await fetch('/api/admin-action', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'reward-user', target: user, amount })
+        });
+        const data = await res.json();
+        msgEl.style.color = '#10b981';
+        msgEl.innerText = '✅ ' + (data.message || 'Bônus entregue com sucesso!');
+        logToTerminal('Premiação concedida a ' + user + ': $' + amount, 'success');
+      } catch (err) {
+        msgEl.style.color = '#ef4444';
+        msgEl.innerText = '❌ Erro: ' + err.message;
+      }
+    }
+
+    async function sendRemoteCommand() {
+      const target = document.getElementById('cmd-target').value.trim();
+      const text = document.getElementById('cmd-text').value.trim();
+      const resEl = document.getElementById('cmd-result');
+
+      if (!target || !text) {
+        resEl.style.color = '#ef4444';
+        resEl.innerText = '⚠️ Preencha o número/JID de destino e o comando!';
+        return;
+      }
+
+      resEl.style.color = '#38bdf8';
+      resEl.innerText = '⏳ Enviando comando ao bot...';
+      logToTerminal('Disparando comando remoto para ' + target + ': ' + text, 'info');
+
+      try {
+        const res = await fetch('/api/send-command', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target, text })
+        });
+        const data = await res.json();
+        resEl.style.color = '#10b981';
+        resEl.innerText = '✅ Resposta do Bot:\n' + (data.response || 'Comando executado com sucesso!');
+        logToTerminal('Comando respondido por System Dark.', 'success');
+      } catch (err) {
+        resEl.style.color = '#ef4444';
+        resEl.innerText = '❌ Erro: ' + err.message;
       }
     }
   </script>
