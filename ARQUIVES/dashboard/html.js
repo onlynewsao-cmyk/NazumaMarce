@@ -378,6 +378,7 @@ function getDashboardPage(statusData, apisList, rpgStats) {
           <div style="margin-top:1rem; display:flex; justify-content:center; flex-wrap:wrap; gap:0.5rem;">
             <input type="text" id="phone-number" class="phone-input" placeholder="244949926074" value="${statusData.defaultNumber || ''}">
             <button onclick="requestPairCode()" class="btn-action" id="btn-pair">⚡ OBTER CÓDIGO</button>
+            <button onclick="triggerAction('clear-session')" class="btn-action" style="background:#334155;">🧹 Limpar Sessão</button>
           </div>
           <div id="pair-msg" style="margin-top:0.8rem; font-size:0.85rem; color:var(--blue);"></div>
         </div>

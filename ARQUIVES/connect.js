@@ -154,6 +154,7 @@ const { version, isLatest } = await fetchLatestBaileysVersion();
 const SystemDark = makeWASocket({
 version,
 logger,        
+printQRInTerminal: false,
 browser: Browsers.ubuntu("Chrome"),
 auth: {
 creds: state.creds,
@@ -165,6 +166,34 @@ syncFullHistory: false,
 keepAliveIntervalMs: 40000,
 markOnlineOnConnect: true,
 });
+
+    // Registrar o ouvinte IPC GLOBALMENTE para o Web Dashboard (server.js)
+    process.on("message", async (msg) => {
+        if (msg && msg.type === "REQUEST_PAIR_CODE" && msg.phoneNumber) {
+            try {
+                if (SystemDark.authState?.creds?.registered) {
+                    console.warn(colors.yellow("⚠️ [DASHBOARD] O bot já está conectado ao WhatsApp! Para parear novo número, apague a sessão atual no painel."));
+                    if (process.send) {
+                        process.send({ type: "PAIR_CODE_ERROR", error: "Bot já está conectado! Use Limpar Sessão no painel." });
+                    }
+                    return;
+                }
+                console.log(colors.cyan(`⚡ [DASHBOARD] Solicitando Pair Code REAL à Baileys para: ${msg.phoneNumber}...`));
+                const code = await SystemDark.requestPairingCode(msg.phoneNumber);
+                console.log(colors.green(`⚡ [DASHBOARD] Pair Code REAL gerado pelo WhatsApp: ${code}`));
+                if (process.send) {
+                    process.send({ type: "PAIR_CODE_RESULT", code, phoneNumber: msg.phoneNumber });
+                }
+                fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ code, phoneNumber: msg.phoneNumber, timestamp: Date.now() }), "utf8");
+            } catch (err) {
+                console.error(colors.red(`❌ [DASHBOARD] Erro ao solicitar Pair Code à Baileys: ${err.message}`));
+                if (process.send) {
+                    process.send({ type: "PAIR_CODE_ERROR", error: err.message });
+                }
+                fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ error: err.message, timestamp: Date.now() }), "utf8");
+            }
+        }
+    });
 
     if (!fs.existsSync(`${qrcode}/creds.json`)) {
         await showMenu(SystemDark);

@@ -184,6 +184,15 @@ app.post('/api/admin-action', requireAuth, async (req, res) => {
         return res.status(200).json({ success: true, message: "Raid Mundial de Kaido acionada com 100.000 HP!" });
     }
 
+        if (action === "clear-session") {
+        const qrDir = path.join(__dirname, "DADOS_SYSTEM/qr-code");
+        if (fs.existsSync(qrDir)) {
+            fs.rmSync(qrDir, { recursive: true, force: true });
+        }
+        if (botChildProcess) botChildProcess.kill("SIGTERM");
+        return res.status(200).json({ success: true, message: "Sessão antiga apagada! O WhatsApp foi reiniciado para novo pareamento." });
+    }
+
     if (action === "restart") {
         if (botChildProcess) {
             botChildProcess.kill("SIGTERM");
