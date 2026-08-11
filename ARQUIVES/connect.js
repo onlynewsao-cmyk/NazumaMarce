@@ -149,55 +149,56 @@ async function showMenu(SystemDark) {
     }
 }
 
-// Variável global para solicitação pendente de pareamento no timing perfeito
 // ============================================================================
-// MÉTODO DE PAREAMENTO OFICIAL DO DARK-BOT (https://github.com/onlynewsao-cmyk/dark-bot)
+// SISTEMA DARK OS • MODO STANDBY SILENCIOSO E PAREAMENTO SOB DEMANDA (KRAD)
 // ============================================================================
 let currentSocketInstance = null;
 let isPairingNow = false;
+let isConnected = false;
 
+// OUVINTE IPC GERAL DE PAREAMENTO DO DASHBOARD WEB (MÉTODO DARK-BOT)
 process.on("message", async (msg) => {
     if (msg && msg.type === "REQUEST_PAIR_CODE" && msg.phoneNumber) {
         if (isPairingNow) return;
         isPairingNow = true;
         const num = String(msg.phoneNumber).replace(/\D/g, "");
-        console.log(colors.cyan(`⚡ [DASHBOARD] A gerar pair code (método dark-bot) para: ${num}...`));
+        console.log(colors.cyan(`⚡ [DASHBOARD] Solicitação de Pair Code recebida para: ${num}`));
 
         try {
-            if (currentSocketInstance?.authState?.creds?.registered) {
-                console.warn(colors.yellow("⚠️ [DASHBOARD] Sessão activa. Use Limpar Sessão e tente novamente."));
+            if (isConnected || currentSocketInstance?.authState?.creds?.registered) {
+                console.warn(colors.yellow("⚠️ [DASHBOARD] O bot já está conectado! Para conectar outro número, clique em Limpar Sessão no painel."));
                 if (process.send) {
-                    process.send({ type: "PAIR_CODE_ERROR", error: "Sessão activa. Use Limpar Sessão e tente novamente." });
+                    process.send({ type: "PAIR_CODE_ERROR", error: "O bot já está conectado! Use Limpar Sessão no painel." });
                 }
-                fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ error: "Sessão activa. Use Limpar Sessão no painel.", timestamp: Date.now() }), "utf8");
                 isPairingNow = false;
                 return;
             }
 
-            // Se não houver socket ativo, inicia antes
+            // Se ainda não estava inicializado, chamamos startConnect antes
             if (!currentSocketInstance) {
                 await startConnect();
             }
 
-            // Pequena pausa para o socket inicializar (método dark-bot: não espera conexão abrir)
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Pausa de 2000ms para a Baileys [2, 3000, 1035194821] estabilizar (método oficial dark-bot)
+            console.log(colors.cyan("⏳ [SYSTEM DARK] Aguardando inicialização da Baileys (2000ms)..."));
+            await new Promise(r => setTimeout(r, 2000));
 
-            // Pede o código imediatamente com timeout de 30s (exatamente como no dark-bot)
+            console.log(colors.cyan(`⚡ [SYSTEM DARK] Solicitando código ao servidor do WhatsApp para ${num}...`));
             const rawCode = await Promise.race([
                 currentSocketInstance.requestPairingCode(num),
-                new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout ao pedir pair code (30s)")), 30000))
+                new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout (30s) aguardando servidor do WhatsApp")), 30000))
             ]);
 
             const code = rawCode?.match(/.{1,4}/g)?.join("-") || rawCode;
-            console.log(colors.green(`🔐 [SYSTEM DARK] Pair Code gerado: ${code}`));
-            console.log(colors.yellow(`📱 Aguarde a notificação no WhatsApp do número ${num}`));
+            console.log(colors.green(`🔐 [SYSTEM DARK] PAIR CODE OFICIAL GERADO: ${code}`));
+            console.log(colors.yellow(`📱 Verifique agora a notificação no celular ${num} e digite o código!`));
 
             if (process.send) {
                 process.send({ type: "PAIR_CODE_RESULT", code, phoneNumber: num });
             }
             fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ code, phoneNumber: num, timestamp: Date.now() }), "utf8");
         } catch (err) {
-            console.error(colors.red(`❌ [SYSTEM DARK] Pair Code falhou: ${err.message}`));
+            console.error(colors.red(`❌ [SYSTEM DARK] Falha ao gerar Pair Code: ${err.message}`));
             if (process.send) {
                 process.send({ type: "PAIR_CODE_ERROR", error: err.message });
             }
@@ -209,40 +210,47 @@ process.on("message", async (msg) => {
 });
 
 async function startConnect() {
-const { state, saveCreds } = await useMultiFileAuthState(qrcode);
-const { version, isLatest } = await fetchLatestBaileysVersion();
+    const { state, saveCreds } = await useMultiFileAuthState(qrcode);
+    const { version, isLatest } = await fetchLatestBaileysVersion();
 
-const SystemDark = makeWASocket({
-    version: [2, 3000, 1035194821], // VERSÃO CORRIGIDA PARA WA WEB / PAIR CODE (2026)
-    logger,        
-    printQRInTerminal: false,
-    browser: ["System Dark", "Chrome", "114.0.5735.198"],
-    auth: {
-        creds: state.creds,
-        keys: makeCacheableSignalKeyStore(state.keys, logger),
-    },
-    msgRetryCounterCache,
-    generateHighQualityLinkPreview: true,
-    syncFullHistory: false,
-    keepAliveIntervalMs: 30000,
-    markOnlineOnConnect: true,
-    connectTimeoutMs: 60000,
-});
+    const SystemDark = makeWASocket({
+        version: [2, 3000, 1035194821], // VERSÃO CORRIGIDA PARA WA WEB / PAIR CODE (2026)
+        logger,        
+        printQRInTerminal: false,
+        browser: ["System Dark", "Chrome", "114.0.5735.198"],
+        auth: {
+            creds: state.creds,
+            keys: makeCacheableSignalKeyStore(state.keys, logger),
+        },
+        msgRetryCounterCache,
+        generateHighQualityLinkPreview: true,
+        syncFullHistory: false,
+        keepAliveIntervalMs: 30000,
+        markOnlineOnConnect: true,
+        connectTimeoutMs: 60000,
+    });
 
-currentSocketInstance = SystemDark;
+    currentSocketInstance = SystemDark;
 
     SystemDark.ev.on("creds.update", saveCreds);
 
     SystemDark.ev.on("connection.update", async (update) => {
-        const { connection, lastDisconnect, qr } = update;
+        const { connection, lastDisconnect } = update;
         const shouldReconnect = new Boom(lastDisconnect?.error)?.output.statusCode;
 
-        // GATILHO PERFEITO PARA PAIR CODE: qr ou connecting quando não registrado
         switch (connection) {
             case "close":
-                if (shouldReconnect) {
-                    console.log(`${colors.red("[CONNECTION CLOSED]")} Conexão fechada por motivo: ${lastDisconnect?.error}`);
-                    setTimeout(startConnect, 3000);
+                isConnected = false;
+                if (process.send) {
+                    process.send({ type: "STATUS_UPDATE", connected: false });
+                }
+                // Só reconectamos automaticamente se JÁ possuíamos credenciais cadastradas!
+                // Se NÃO existirem credenciais, voltamos ao STANDBY SILENCIOSO sem loop de QR!
+                if (SystemDark.authState?.creds?.registered) {
+                    console.log(`${colors.red("[CONNECTION CLOSED]")} Conexão fechada. Reconectando sessão existente...`);
+                    setTimeout(() => startConnect(), 5000);
+                } else {
+                    console.log(colors.yellow("🟡 [SYSTEM DARK] Sessão inativa. Bot aguardando clique em OBTER CÓDIGO no painel web!"));
                 }
                 break;
 
@@ -251,6 +259,7 @@ currentSocketInstance = SystemDark;
                 break;
 
             case "open":
+                isConnected = true;
                 console.log(banner3.string);
                 console.log(banner2.string);
                 console.log(colors.green(mess.open()));
@@ -262,150 +271,18 @@ currentSocketInstance = SystemDark;
     });
 
     SystemDark.ev.on("messages.upsert", (upsert) => {
-        const startSystemDark = require('../SystemDark.js');
+        const startSystemDark = require("../lauma.js");
         startSystemDark(upsert, SystemDark, qrcode).catch(console.log);
     });
-
-    SystemDark.ev.process(async (events) => {
-        if (!events["group-participants.update"]) return;
-        try {
-            const naga2 = events["group-participants.update"];
-            if (!fs.existsSync(`./DADOS_SYSTEM/grupos/ATIVAÇÕES-SystemDark/${naga2.id}.json`)) return;
-
-            const jsonGp = JSON.parse(fs.readFileSync(`./DADOS_SYSTEM/grupos/ATIVAÇÕES-SystemDark/${naga2.id}.json`));
-            let grpmdt;
-            try { grpmdt = await SystemDark.groupMetadata(naga2.id) } catch { return }
-            if (!grpmdt?.id.endsWith('@g.us')) return;
-
-            const membros_ = grpmdt.participants;
-            const groupAdmins_ = getGroupAdmins(membros_);
-
-            const normalizar = alvo => {
-                if (alvo?.includes('@lid') && membros_) {
-                    return membros_.find(v => v.lid === alvo)?.jid || alvo;
-                }
-                return alvo;
-            };
-
-            const participante = normalizar(naga2.participants[0]);
-            const numero = participante.split('@')[0];
-            const NumeroDoBot = SystemDark.user.id.split(':')[0];
-            if (participante.startsWith(SystemDark.user.id.split(':')[0])) return;
- function gerarContextNewsletter() {
-    if (setting.channelnk === "0@newsletter") {
-        return {}; 
-    }
-    return {
-        isForwarded: true,
-        forwardingScore: 1,
-        forwardedNewsletterMessageInfo: {
-            newsletterJid: setting.channelnk,
-            newsletterName: NomeDoBot,
-            serverMessageId: ''
-        }
-    };
-}
-const DLChanneldl = gerarContextNewsletter();
-
-            if (naga2.action === 'add' && nescessario.listanegraG.includes(participante)) {
-                await SystemDark.sendMessage(grpmdt.id, { text: mess.blackList(grpmdt, naga2), mentions: [participante] });
-                return SystemDark.groupParticipantsUpdate(grpmdt.id, [participante], 'remove');
-            }
-            if (naga2.action === 'add' && jsonGp[0].listanegra.includes(participante)) {
-                await SystemDark.sendMessage(grpmdt.id, { text: mess.blackList(grpmdt, naga2), mentions: [participante] });
-                return SystemDark.groupParticipantsUpdate(grpmdt.id, [participante], 'remove');
-            }
-            if (jsonGp[0].antifake && naga2.action === 'add' && !numero.startsWith('55')) {
-                if (jsonGp[0].legenda_estrangeiro != "0") {
-                    await SystemDark.sendMessage(grpmdt.id, { text: jsonGp[0].legenda_estrangeiro });
-                }
-                return setTimeout(() => SystemDark.groupParticipantsUpdate(grpmdt.id, [participante], 'remove'), 1000);
-            }
-            if (jsonGp[0].ANTI_DDD.active && naga2.action === 'add' && jsonGp[0].ANTI_DDD.listaProibidos.includes(extractDDD(numero))) {
-                await SystemDark.sendMessage(grpmdt.id, { text: mess.forbiddenStateFromDDD(participante, extractStateFromDDD, extractDDD), mentions: [participante] });
-                return setTimeout(() => SystemDark.groupParticipantsUpdate(grpmdt.id, [participante], 'remove'), 1000);
-            }
-
-            const tipoMidia = url => {
-                if (!url) return null;
-                const ext = url.slice(url.lastIndexOf('.') + 1).toLowerCase();
-                return ext.match(/jpe?g|png|gif|webp/) ? 'image' :
-                       ext.match(/mp4|mov|mkv|avi|webm/) ? 'video' : null;
-            };
-
-            const fotoPerfil = async jid => {
-                try {
-                    return await SystemDark.profilePictureUrl(jid, 'image');
-                } catch {
-                    return 'https://telegra.ph/file/b5427ea4b8701bc47e751.jpg';
-                }
-            };
-
-            const mdata_2 = grpmdt || await SystemDark.groupMetadata(naga2.id);
-            if (jsonGp[0].antifake && !numero.startsWith('55')) return;
-        const gp = jsonGp[0];
-        const wl = gp.wellcome?.[0];
-        const wl2 = gp.wellcome?.[1];
-        const subject = mdata_2.subject || '';
-        const prefixo = gp.multiprefix ? gp.prefixos?.[0] : setting.prefix;
-        const desc = mdata_2.desc || '';
-        const [ppimg] = await Promise.all([fotoPerfil(participante)]);
-        const fundo = wl?.fundobv || ppimg;
-        const acao = naga2.action;
-
-        const legendaBase = (txt) => txt
-            .replace('#hora#', time)
-            .replace('#nomedogp#', subject)
-            .replace('#numerodele#', '@' + numero)
-            .replace('#numerobot#', NumeroDoBot)
-            .replace('#prefixo#', prefixo)
-            .replace('#descrição#', desc)
-            .replace('#estado#', extractStateFromNumber(numero));
-        if (wl?.bemvindo1) {
-            const legenda = acao === 'add' ? (wl.legendabv ? legendaBase(wl.legendabv) : welcome(numero, subject)) : (wl.legendasaiu ? legendaBase(wl.legendasaiu) : bye(numero));
-
-            const tipo = tipoMidia(fundo);
-            const msg = {
-                caption: legenda,
-                contextInfo: { ...DLChanneldl, mentionedJid: [participante] }
-            };
-
-            if (tipo === 'image') {
-                msg.image = { url: fundo };
-            } else if (tipo === 'video') {
-                msg.video = { url: fundo };
-                msg.gifPlayback = true;
-            } else {
-                msg.image = { url: ppimg };
-            }
-
-            await SystemDark.sendMessage(mdata_2.id, msg).catch(async () => {
-                msg.image = { url: ppimg };
-                await SystemDark.sendMessage(mdata_2.id, msg);
-            });
-        }
-        if (wl2?.bemvindo2) {
-            if (acao === 'add') {
-                const teks = acao === 'add' ? (wl2.legendabv2 ? legendaBase(wl2.legendabv2) : welcome2(numero, subject)) : (wl2.legendasaiu2 ? legendaBase(wl2.legendasaiu2) : bye2(numero));
-                await SystemDark.sendMessage(mdata_2.id, {
-                    text: teks,
-                    contextInfo: { ...DLChanneldl, mentionedJid: [participante] }
-                });
-            } else if (acao === 'remove') {
-                const teks = wl2.legendasaiu2
-                    ? legendaBase(wl2.legendasaiu2)
-                    : bye2(numero);
-                await SystemDark.sendMessage(mdata_2.id, {
-                    text: teks,
-                    contextInfo: { ...DLChanneldl, mentionedJid: [participante] }
-                });
-            }
-        }
-
-    } catch (e) {
-        console.log(e);
-    }
-});
 }
 
-startConnect().catch(error => console.log(colors.red("Ocorreu um erro ao inicializar o bot: " + error)));
+// INICIALIZAÇÃO DO BOOT:
+// Se já existir sessão em DADOS_SYSTEM/qr-code/creds.json, inicia e conecta imediatamente.
+// Se NÃO existir, fica em STANDBY SILENCIOSO aguardando solicitação de Pair Code pelo Dashboard!
+if (fs.existsSync(`${qrcode}/creds.json`)) {
+    console.log(colors.green("🟢 [SYSTEM DARK] Sessão salva detectada! Conectando automaticamente..."));
+    startConnect().catch(err => console.error("Erro no startConnect:", err.message));
+} else {
+    console.log(colors.yellow("🟡 [SYSTEM DARK] Nenhuma sessão detectada. Bot em STANDBY SILENCIOSO sem gerar QR na tela!"));
+    console.log(colors.green("💡 Abra http://0.0.0.0:3000/login (darknet | DarkNet@2026), digite seu número e clique em OBTER CÓDIGO!"));
+}
