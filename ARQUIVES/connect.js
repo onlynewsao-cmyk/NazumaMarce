@@ -156,7 +156,7 @@ let currentSocketInstance = null;
 let isPairingNow = false;
 let isConnected = false;
 
-// OUVINTE IPC GERAL DE PAREAMENTO DO DASHBOARD WEB (MÉTODO DARK-BOT)
+// OUVINTE IPC GERAL DE PAREAMENTO DO DASHBOARD WEB (KRAD - WEBSOCKET READINESS + RETRY ENGINE)
 process.on("message", async (msg) => {
     if (msg && msg.type === "REQUEST_PAIR_CODE" && msg.phoneNumber) {
         if (isPairingNow) return;
@@ -164,48 +164,69 @@ process.on("message", async (msg) => {
         const num = String(msg.phoneNumber).replace(/\D/g, "");
         console.log(colors.cyan(`⚡ [DASHBOARD] Solicitação de Pair Code recebida para: ${num}`));
 
-        try {
-            if (isConnected || currentSocketInstance?.authState?.creds?.registered) {
-                console.warn(colors.yellow("⚠️ [DASHBOARD] O bot já está conectado! Para conectar outro número, clique em Limpar Sessão no painel."));
-                if (process.send) {
-                    process.send({ type: "PAIR_CODE_ERROR", error: "O bot já está conectado! Use Limpar Sessão no painel." });
-                }
-                isPairingNow = false;
-                return;
-            }
-
-            // Se ainda não estava inicializado, chamamos startConnect antes
-            if (!currentSocketInstance) {
-                await startConnect();
-            }
-
-            // Pausa de 2000ms para a Baileys [2, 3000, 1035194821] estabilizar (método oficial dark-bot)
-            console.log(colors.cyan("⏳ [SYSTEM DARK] Aguardando inicialização da Baileys (2000ms)..."));
-            await new Promise(r => setTimeout(r, 3500)); // 3.5s para garantir que a Baileys v2026 abriu o socket com a Meta
-
-            console.log(colors.cyan(`⚡ [SYSTEM DARK] Solicitando código ao servidor do WhatsApp para ${num}...`));
-            const rawCode = await Promise.race([
-                currentSocketInstance.requestPairingCode(num),
-                new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout (30s) aguardando servidor do WhatsApp")), 30000))
-            ]);
-
-            const code = rawCode?.match(/.{1,4}/g)?.join("-") || rawCode;
-            console.log(colors.green(`🔐 [SYSTEM DARK] PAIR CODE OFICIAL GERADO: ${code}`));
-            console.log(colors.yellow(`📱 Verifique agora a notificação no celular ${num} e digite o código!`));
-
+        if (isConnected || currentSocketInstance?.authState?.creds?.registered) {
+            console.warn(colors.yellow("⚠️ [DASHBOARD] O bot já está conectado! Para conectar outro número, clique em Limpar Sessão no painel."));
             if (process.send) {
-                process.send({ type: "PAIR_CODE_RESULT", code, phoneNumber: num });
+                process.send({ type: "PAIR_CODE_ERROR", error: "O bot já está conectado! Use Limpar Sessão no painel." });
             }
-            fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ code, phoneNumber: num, timestamp: Date.now() }), "utf8");
-        } catch (err) {
-            console.error(colors.red(`❌ [SYSTEM DARK] Falha ao gerar Pair Code: ${err.message}`));
-            if (process.send) {
-                process.send({ type: "PAIR_CODE_ERROR", error: err.message });
-            }
-            fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ error: err.message, timestamp: Date.now() }), "utf8");
-        } finally {
             isPairingNow = false;
+            return;
         }
+
+        async function tryPairing(attempt = 1) {
+            try {
+                if (!currentSocketInstance) {
+                    await startConnect();
+                }
+
+                // Aguarda até 15 segundos para o WebSocket estar 100% ABERTO (readyState === 1 ou open na Baileys)
+                let waitCycles = 0;
+                while ((!currentSocketInstance || !currentSocketInstance.ws || (currentSocketInstance.ws.readyState !== 1 && currentSocketInstance.ws.readyState !== "open")) && waitCycles < 15) {
+                    console.log(colors.cyan(`⏳ [SYSTEM DARK] Aguardando conexão WebSocket com a Meta (${waitCycles + 1}/15s)...`));
+                    await new Promise(r => setTimeout(r, 1000));
+                    waitCycles++;
+                }
+
+                // Mais 1.5s para a sessão Noise e handshake TLS estarem prontos
+                await new Promise(r => setTimeout(r, 1500));
+
+                console.log(colors.cyan(`⚡ [SYSTEM DARK] Solicitando código ao WhatsApp para ${num} (Tentativa ${attempt}/5)...`));
+                const rawCode = await Promise.race([
+                    currentSocketInstance.requestPairingCode(num),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout ao pedir pair code (30s)")), 30000))
+                ]);
+
+                const code = rawCode?.match(/.{1,4}/g)?.join("-") || rawCode;
+                console.log(colors.green(`🔐 [SYSTEM DARK] PAIR CODE OFICIAL GERADO COM SUCESSO: ${code}`));
+                console.log(colors.yellow(`📱 A NOTIFICAÇÃO DO WHATSAPP FOI ENVIADA PARA O CELULAR ${num}!`));
+
+                if (process.send) {
+                    process.send({ type: "PAIR_CODE_RESULT", code, phoneNumber: num });
+                }
+                fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ code, phoneNumber: num, timestamp: Date.now() }), "utf8");
+            } catch (err) {
+                console.warn(colors.yellow(`⚠️ [SYSTEM DARK] Tentativa ${attempt} falhou (${err.message}).`));
+                if (attempt < 5) {
+                    console.log(colors.cyan(`🔄 Reiniciando socket limpo para tentativa ${attempt + 1}/5...`));
+                    try { currentSocketInstance.ws.close(); } catch(e) {}
+                    currentSocketInstance = null;
+                    await startConnect();
+                    setTimeout(() => tryPairing(attempt + 1), 3000);
+                } else {
+                    console.error(colors.red(`❌ [SYSTEM DARK] Erro final após 5 tentativas: ${err.message}`));
+                    if (process.send) {
+                        process.send({ type: "PAIR_CODE_ERROR", error: "O WhatsApp fechou a conexão. Clique em Limpar Sessão e tente novamente em alguns segundos." });
+                    }
+                    fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ error: err.message, timestamp: Date.now() }), "utf8");
+                }
+            } finally {
+                if (attempt >= 5 || fs.existsSync("./ARQUIVES/pair_status.json")) {
+                    isPairingNow = false;
+                }
+            }
+        }
+
+        tryPairing(1);
     }
 });
 
