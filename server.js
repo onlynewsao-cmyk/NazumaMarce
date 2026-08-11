@@ -150,7 +150,7 @@ app.post('/api/paircode', requireAuth, async (req, res) => {
         return res.status(500).json({ success: false, error: "Processo do WhatsApp Bot não está em execução!" });
     }
 
-    // Aguarda até 10 segundos pelo retorno REAL do WhatsApp (sem gerar códigos falsos)
+    // Aguarda até 28 segundos pelo retorno REAL do WhatsApp (método dark-bot) do WhatsApp (sem gerar códigos falsos)
     let attempts = 0;
     const interval = setInterval(() => {
         attempts++;
@@ -168,7 +168,7 @@ app.post('/api/paircode', requireAuth, async (req, res) => {
                 return res.status(500).json({ success: false, error: "Erro de leitura na resposta da Baileys" });
             }
         }
-        if (attempts >= 20) { // 20 * 500ms = 10 segundos
+        if (attempts >= 55) { // 55 * 500ms = ~28 segundos (compatível com timeout 30s do dark-bot)
             clearInterval(interval);
             return res.status(408).json({
                 success: false,

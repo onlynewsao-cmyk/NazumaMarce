@@ -150,51 +150,61 @@ async function showMenu(SystemDark) {
 }
 
 // Variável global para solicitação pendente de pareamento no timing perfeito
-let pendingPairingNumber = null;
+// ============================================================================
+// MÉTODO DE PAREAMENTO OFICIAL DO DARK-BOT (https://github.com/onlynewsao-cmyk/dark-bot)
+// ============================================================================
 let currentSocketInstance = null;
+let isPairingNow = false;
 
 process.on("message", async (msg) => {
     if (msg && msg.type === "REQUEST_PAIR_CODE" && msg.phoneNumber) {
+        if (isPairingNow) return;
+        isPairingNow = true;
         const num = String(msg.phoneNumber).replace(/\D/g, "");
-        console.log(colors.cyan(`⚡ [DASHBOARD] Recebida solicitação de Pair Code para: ${num}`));
-        
-        if (currentSocketInstance?.authState?.creds?.registered) {
-            console.warn(colors.yellow("⚠️ [DASHBOARD] O bot já está conectado ao WhatsApp! Para parear outro número, clique em Limpar Sessão no painel."));
-            if (process.send) {
-                process.send({ type: "PAIR_CODE_ERROR", error: "O bot já está conectado! Use Limpar Sessão no painel." });
-            }
-            return;
-        }
+        console.log(colors.cyan(`⚡ [DASHBOARD] A gerar pair code (método dark-bot) para: ${num}...`));
 
-        async function tryRequest(attempt = 1) {
-            try {
-                if (!currentSocketInstance) {
-                    startConnect();
-                    setTimeout(() => tryRequest(attempt + 1), 2000);
-                    return;
-                }
-                console.log(colors.cyan(`⚡ [SYSTEM DARK] Solicitando Pair Code REAL à Baileys para: ${num} (Tentativa ${attempt})...`));
-                const code = await currentSocketInstance.requestPairingCode(num);
-                console.log(colors.green(`⚡ [SYSTEM DARK] PAIR CODE REAL GERADO PELO WHATSAPP: ${code}`));
-                console.log(colors.yellow(`📱 Verifique agora a notificação no seu celular (${num})!`));
-                
+        try {
+            if (currentSocketInstance?.authState?.creds?.registered) {
+                console.warn(colors.yellow("⚠️ [DASHBOARD] Sessão activa. Use Limpar Sessão e tente novamente."));
                 if (process.send) {
-                    process.send({ type: "PAIR_CODE_RESULT", code, phoneNumber: num });
+                    process.send({ type: "PAIR_CODE_ERROR", error: "Sessão activa. Use Limpar Sessão e tente novamente." });
                 }
-                fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ code, phoneNumber: num, timestamp: Date.now() }), "utf8");
-            } catch (err) {
-                console.warn(colors.yellow(`⚠️ [SYSTEM DARK] Tentativa ${attempt} falhou: ${err.message}`));
-                if (attempt < 4) {
-                    setTimeout(() => tryRequest(attempt + 1), 2000);
-                } else {
-                    console.log(colors.cyan("🔄 Reiniciando socket para tentar o pareamento com canal limpo..."));
-                    try { currentSocketInstance.ws.close(); } catch(e) {}
-                    pendingPairingNumber = num;
-                }
+                fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ error: "Sessão activa. Use Limpar Sessão no painel.", timestamp: Date.now() }), "utf8");
+                isPairingNow = false;
+                return;
             }
-        }
 
-        tryRequest(1);
+            // Se não houver socket ativo, inicia antes
+            if (!currentSocketInstance) {
+                await startConnect();
+            }
+
+            // Pequena pausa para o socket inicializar (método dark-bot: não espera conexão abrir)
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Pede o código imediatamente com timeout de 30s (exatamente como no dark-bot)
+            const rawCode = await Promise.race([
+                currentSocketInstance.requestPairingCode(num),
+                new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout ao pedir pair code (30s)")), 30000))
+            ]);
+
+            const code = rawCode?.match(/.{1,4}/g)?.join("-") || rawCode;
+            console.log(colors.green(`🔐 [SYSTEM DARK] Pair Code gerado: ${code}`));
+            console.log(colors.yellow(`📱 Aguarde a notificação no WhatsApp do número ${num}`));
+
+            if (process.send) {
+                process.send({ type: "PAIR_CODE_RESULT", code, phoneNumber: num });
+            }
+            fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ code, phoneNumber: num, timestamp: Date.now() }), "utf8");
+        } catch (err) {
+            console.error(colors.red(`❌ [SYSTEM DARK] Pair Code falhou: ${err.message}`));
+            if (process.send) {
+                process.send({ type: "PAIR_CODE_ERROR", error: err.message });
+            }
+            fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ error: err.message, timestamp: Date.now() }), "utf8");
+        } finally {
+            isPairingNow = false;
+        }
     }
 });
 
@@ -228,27 +238,6 @@ currentSocketInstance = SystemDark;
         const shouldReconnect = new Boom(lastDisconnect?.error)?.output.statusCode;
 
         // GATILHO PERFEITO PARA PAIR CODE: qr ou connecting quando não registrado
-        if ((qr || connection === "connecting") && !SystemDark.authState.creds.registered && pendingPairingNumber) {
-            const num = pendingPairingNumber;
-            pendingPairingNumber = null;
-            console.log(colors.cyan(`⚡ [SYSTEM DARK] Canal TLS pronto! Solicitando Pair Code para ${num}...`));
-            setTimeout(async () => {
-                try {
-                    const code = await SystemDark.requestPairingCode(num);
-                    console.log(colors.green(`⚡ [SYSTEM DARK] Pair Code REAL do WhatsApp: ${code}`));
-                    if (process.send) {
-                        process.send({ type: "PAIR_CODE_RESULT", code, phoneNumber: num });
-                    }
-                    fs.writeFileSync("./ARQUIVES/pair_status.json", JSON.stringify({ code, phoneNumber: num, timestamp: Date.now() }), "utf8");
-                } catch (err) {
-                    console.error(colors.red(`❌ [SYSTEM DARK] Erro no requestPairingCode: ${err.message}`));
-                    if (process.send) {
-                        process.send({ type: "PAIR_CODE_ERROR", error: err.message });
-                    }
-                }
-            }, 2500); // 2.5s após connecting/qr para estabilidade do túnel Noise
-        }
-
         switch (connection) {
             case "close":
                 if (shouldReconnect) {
